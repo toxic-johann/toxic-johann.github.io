@@ -3,9 +3,9 @@
   <title><![CDATA[Bit Of Toxic]]></title>
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
-  <link href="http://yoursite.com/"/>
-  <updated>2015-10-30T07:45:18.345Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="http://blog.toxicjohann.com/"/>
+  <updated>2015-10-30T07:45:18.000Z</updated>
+  <id>http://blog.toxicjohann.com/</id>
   
   <author>
     <name><![CDATA[to-xic]]></name>
@@ -16,10 +16,10 @@
   
   <entry>
     <title><![CDATA[业务线第一周感悟]]></title>
-    <link href="http://yoursite.com/2015/10/30/panda/"/>
-    <id>http://yoursite.com/2015/10/30/panda/</id>
+    <link href="http://blog.toxicjohann.com/2015/10/30/panda/"/>
+    <id>http://blog.toxicjohann.com/2015/10/30/panda/</id>
     <published>2015-10-30T07:08:04.000Z</published>
-    <updated>2015-10-30T07:45:18.345Z</updated>
+    <updated>2015-10-30T07:45:18.000Z</updated>
     <content type="html"><![CDATA[<p>这周被借调出去了。去了一个挺忙碌的部门。说忙碌，其实也不算十分忙碌，主要是时间非常赶。但是，算是真正的第一次上业务线工作。感触挺多。</p>
 <h1 id="gulp">gulp</h1><p>gulp已经成为了前端开发的必备工具了。原理上还是不算困难的。但是在第一次完成任务，我就被gulp坑了一回。为何呢？原来，在业务上提交源码后，要进行以gulp build，上线或者提测前，要进行gulp deploy，否则就会出现线上和线下编译代码不一致的情况。在不熟悉环境的情况下，没有进行gulp deploy。发现线上的bug无论如何也无法线下复现。为此浪费了不少时间。</p>
 <p>后期，必须要弄清楚gulp和业务线上的全套流程。</p>
@@ -47,10 +47,10 @@
   
   <entry>
     <title><![CDATA[web端touch开发手记]]></title>
-    <link href="http://yoursite.com/2015/10/26/web-touch/"/>
-    <id>http://yoursite.com/2015/10/26/web-touch/</id>
+    <link href="http://blog.toxicjohann.com/2015/10/26/web-touch/"/>
+    <id>http://blog.toxicjohann.com/2015/10/26/web-touch/</id>
     <published>2015-10-26T11:02:57.000Z</published>
-    <updated>2015-10-26T11:03:43.281Z</updated>
+    <updated>2015-10-26T11:03:43.000Z</updated>
     <content type="html"><![CDATA[<p>只是记录一下上次用到touch开发的时候遇到的一些问题。<br>一般来说，很多人开发touch事件都会调用zepto上的一些接口。不过由于本人愚钝，并不知道有这种东西。故直接调用了html5定义中的touchstart,touchend,touchmove三个事件。事实上这三个事件也十分完美的可以模拟出大部分touch事件。</p>
 <p>这一次我要实现的是一个长按事件。<br>那么原理就十分简单了。<br>首先当用户touch的时候会触发touchstart，用户离开的时候会触发touchend。我们只需要在touchstart后调用一个计时器记录，touchend结束这个计时器，就可以判断用户是否长按了，并且通过此达到我们希望的一些目的。<br>因为，我利用了setTimeout方法。</p>
 <hr>
@@ -69,10 +69,10 @@
   
   <entry>
     <title><![CDATA[web端手机方向传感器闲谈]]></title>
-    <link href="http://yoursite.com/2015/10/26/web-mobile-sensor/"/>
-    <id>http://yoursite.com/2015/10/26/web-mobile-sensor/</id>
+    <link href="http://blog.toxicjohann.com/2015/10/26/web-mobile-sensor/"/>
+    <id>http://blog.toxicjohann.com/2015/10/26/web-mobile-sensor/</id>
     <published>2015-10-26T11:02:48.000Z</published>
-    <updated>2015-10-26T11:03:21.764Z</updated>
+    <updated>2015-10-26T11:03:21.000Z</updated>
     <content type="html"><![CDATA[<p>因为工作需要，这段时间接触的手机传感器比较多。<br>总体来说，市场上的传感器表现参差不齐。IPhone在传感器表现方面卓越，而安卓由于什么机型都有，则显得差强人意。</p>
 <hr>
 <p>首先还是说说怎么在web端调用手机传感器吧。<br>这个还是比较简单的，只需要添加一个事件就可以了。<br>在最新的h5规范里面，引入了 <strong>DeviceOrientation</strong> 事件。如果没猜错，该接口应该是调用手机里的综合方向传感器。<br>事实上，手机上的方向传感器有多个。例如在安卓手机上就有11种传感器，而诸如</p>
