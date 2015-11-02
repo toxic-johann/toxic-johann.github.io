@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[Bit Of Toxic]]></title>
+  <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://yoursite.com/"/>
+  <updated>2015-10-30T07:45:18.345Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name><![CDATA[to-xic]]></name>
+    <email><![CDATA[toxic.johann@qq.com]]></email>
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[业务线第一周感悟]]></title>
+    <link href="http://yoursite.com/2015/10/30/panda/"/>
+    <id>http://yoursite.com/2015/10/30/panda/</id>
+    <published>2015-10-30T07:08:04.000Z</published>
+    <updated>2015-10-30T07:45:18.345Z</updated>
+    <content type="html"><![CDATA[<p>这周被借调出去了。去了一个挺忙碌的部门。说忙碌，其实也不算十分忙碌，主要是时间非常赶。但是，算是真正的第一次上业务线工作。感触挺多。</p>
+<h1 id="gulp">gulp</h1><p>gulp已经成为了前端开发的必备工具了。原理上还是不算困难的。但是在第一次完成任务，我就被gulp坑了一回。为何呢？原来，在业务上提交源码后，要进行以gulp build，上线或者提测前，要进行gulp deploy，否则就会出现线上和线下编译代码不一致的情况。在不熟悉环境的情况下，没有进行gulp deploy。发现线上的bug无论如何也无法线下复现。为此浪费了不少时间。</p>
+<p>后期，必须要弄清楚gulp和业务线上的全套流程。</p>
+<h1 id="photoshop&amp;&amp;1px">photoshop&amp;&amp;1px</h1><p>写这一段是悲痛的。作为一个新手。拿到UI设计图，很多时候就是简单的制作出来就好。然而，这样有很多细节的地方都没做好。</p>
+<p>在给领导说了以后，我采用了标尺量取的方法。但是这种方法还是有偏差，没法解决问题。因为很多时候你的线会是歪的。</p>
+<p>后期，我发现领导采用了矩形的量取方法，这种方法避免了线取歪的偏差。并且利用这种方法也可以量取字体大小。让我在实现设计图片上准确度大大提升。</p>
+<p><strong>完整地，‘不分青红皂白地’，实现设计的设计，对开发在某种程度上来说是保护。</strong>这样子，当测试吐槽你的UI偏差问题时候，锅就由设计背了。虽然很累，走了很多弯路。但是很感谢我的领导指教。</p>
+<p>那天在这个问题上花了超级超级多的时间，比我后期实现功能还要多。但是我相信，有了这次惨痛的经历，以后会有所提升。</p>
+<h1 id="promise&amp;&amp;handlebars">promise&amp;&amp;handlebars</h1><p>这应该是这周接触的唯一一个的技术难点。说难，其实也不难。因为我在nodejs上有所了解过这种思维，而且，有他们的类似代码供我学习。<br>基于服务器需求，将所有PHP页面转为js加载hbs方式。</p>
+<p>前端渲染与服务端渲染其实相比速度相差多少，这个我真不清楚。但是前端渲染能够一定程度上降低服务端的压力。服务端是以这个要求来要求我们进行前端渲染开发的。讨论可以看看这篇<a href="http://www.cnblogs.com/yexiaochai/p/4463420.html" target="_blank" rel="external">文章</a>。</p>
+<p>Ok，我们只是谈谈做法。其实对于我们的改变还是比较简单的，就是利用promise。将一个页面版块逐个加载，最后添加各种事件效果即可。</p>
+<p>promise的实现方式还是有很多的。比如这次因为我们要适配IE8，我们就采用了jQuery的deferred。详细解释可以参考一下<a href="http://www.ruanyifeng.com/blog/2011/08/a_detailed_explanation_of_jquery_deferred_object.html" target="_blank" rel="external">阮老师的博客</a>，简单易懂。</p>
+<p>而关于使用hbs模板。网上有个<a href="https://cnodejs.org/topic/50e70edfa7e6c6171a1d70fa" target="_blank" rel="external">讨论</a>，老实话，这种效率的问题我并不是特别的关心，主要是方便即可。一般来说，一个模板，只要能够传参，有逻辑判断、循环等功能，我觉得就算基本达标了。hbs都有，虽然他的逻辑判断不算十分方便，只能有true，false判断。不过我们在js处理好再传进去还是十分方便的。</p>
+<p>最后在实现了页面静态化后，大部分的信息都是通过向后端异步拉取的方式。那么就会存在什么都拉不到的状况，例如我这里有一个接口，就会有50%的几率502。因此，必须要增加容错性。设计出合理的假页面。以减少用户的觉知。</p>
+<h1 id="功能彻查">功能彻查</h1><p>这次给测试提了一个bug，有一个接口没有打开。这个原因归根到底还是要怪自己。因为自己的粗心。</p>
+<p>其实在往常的开发过程中，我会按照需求，把要做的功能点列一遍，那样以后就不容易漏掉。但是这次接触的是别人的代码，并且是改动为主，所以就没有经历此过程。但是个人认为这个过程还是十分必须的。这样子才能在开发过程中不会出现重大遗漏，在自测过程中就排除掉一些主功能的bug。</p>
+<h1 id="thinkjs">thinkjs</h1><p>最后推一下咱们的<a href="http://thinkjs.org/" target="_blank" rel="external">thinkjs2.0</a>。真是棒棒哒！！！</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这周被借调出去了。去了一个挺忙碌的部门。说忙碌，其实也不算十分忙碌，主要是时间非常赶。但是，算是真正的第一次上业务线工作。感触挺多。</p>
+<h1 id="gulp">gulp</h1><p>gulp已经成为了前端开发的必备工具了。原理上还是不算困难的。但是在第一次完成任]]>
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[web端touch开发手记]]></title>
+    <link href="http://yoursite.com/2015/10/26/web-touch/"/>
+    <id>http://yoursite.com/2015/10/26/web-touch/</id>
+    <published>2015-10-26T11:02:57.000Z</published>
+    <updated>2015-10-26T11:03:43.281Z</updated>
+    <content type="html"><![CDATA[<p>只是记录一下上次用到touch开发的时候遇到的一些问题。<br>一般来说，很多人开发touch事件都会调用zepto上的一些接口。不过由于本人愚钝，并不知道有这种东西。故直接调用了html5定义中的touchstart,touchend,touchmove三个事件。事实上这三个事件也十分完美的可以模拟出大部分touch事件。</p>
+<p>这一次我要实现的是一个长按事件。<br>那么原理就十分简单了。<br>首先当用户touch的时候会触发touchstart，用户离开的时候会触发touchend。我们只需要在touchstart后调用一个计时器记录，touchend结束这个计时器，就可以判断用户是否长按了，并且通过此达到我们希望的一些目的。<br>因为，我利用了setTimeout方法。</p>
+<hr>
+<p>实现是比较简单的活。<br>那么在移动端当你长按的时候，你会遇到一种常有的情况。没错，长按复制，长按默认事件等等。</p>
+<p>这个解决方法也十分简单。<br>对于IOS和大部分安卓机型，只需要在页面的CSS上添加如下两句设定即可。 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-webkit-user-select : none; </span><br><span class="line">-webkit-touch-callout:none;</span><br></pre></td></tr></table></figure>
+<p>但是这对于神奇的小米系机型还是不够的，他会忽略掉这两句限定。那么如果你的事件是冒泡获取的话就简单了。<br>你只需要在其中截取默认事件就可以了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">evt.preventDefault();</span><br></pre></td></tr></table></figure>
+<p>其实开发上还是十分简单的。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>只是记录一下上次用到touch开发的时候遇到的一些问题。<br>一般来说，很多人开发touch事件都会调用zepto上的一些接口。不过由于本人愚钝，并不知道有这种东西。故直接调用了html5定义中的touchstart,touchend,touchmove三个事件。事实上这]]>
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[web端手机方向传感器闲谈]]></title>
+    <link href="http://yoursite.com/2015/10/26/web-mobile-sensor/"/>
+    <id>http://yoursite.com/2015/10/26/web-mobile-sensor/</id>
+    <published>2015-10-26T11:02:48.000Z</published>
+    <updated>2015-10-26T11:03:21.764Z</updated>
+    <content type="html"><![CDATA[<p>因为工作需要，这段时间接触的手机传感器比较多。<br>总体来说，市场上的传感器表现参差不齐。IPhone在传感器表现方面卓越，而安卓由于什么机型都有，则显得差强人意。</p>
+<hr>
+<p>首先还是说说怎么在web端调用手机传感器吧。<br>这个还是比较简单的，只需要添加一个事件就可以了。<br>在最新的h5规范里面，引入了 <strong>DeviceOrientation</strong> 事件。如果没猜错，该接口应该是调用手机里的综合方向传感器。<br>事实上，手机上的方向传感器有多个。例如在安卓手机上就有11种传感器，而诸如</p>
+<ul>
+<li>TYPE_GYROSCOPE </li>
+<li>TYPE_LINEAR_ACCELERATION  </li>
+<li>TYPE_MAGNETIC_FIELD </li>
+<li>TYPE_ORIENTATION </li>
+<li>TYPE_ROTATION_VECTOR </li>
+</ul>
+<p>均可以用作对手机的状态翻转等进行监测。当然这需要不同的方法，按下不表。<br>而目测DeviceOrientation方法是结合了重力检测与磁场检测两方面实现的翻转检测。<br>DeviceOrientation方法主要监测的是手机上的三个翻转角。<br>你可以将手机水平至于桌面上。</p>
+<ul>
+<li>手机在水平面上旋转为alpha角，此角是基于Z轴旋转。实现方式一般是基于磁场。因此在各种机型上你可以发现这个数值差异十分大。</li>
+<li>手机正常翻起与桌面夹角为beta角，此角是基于X轴旋转。实现方式一般是基于重力分量。</li>
+<li>手机侧翻与桌面夹角为gama角，此角是基于Y轴旋转。实现方式也是基于重力分量。</li>
+</ul>
+<p>我们可以在<a href="http://www.w3.org/html/ig/zh/wiki/DeviceOrientation%E4%BA%8B%E4%BB%B6%E8%A7%84%E8%8C%83" target="_blank" rel="external">w3c</a>上阅读相关的定义数据。</p>
+<p>做一个做简单的调用例子 </p>
+<pre><code class="bash"><span class="keyword">if</span> (window.DeviceOrientationEvent) {
+    window.addEventListener(<span class="string">'deviceorientation'</span>, <span class="keyword">function</span>(event) {
+        var a = event.alpha,
+            b = event.beta,
+            g = event.gamma;
+        console.log(<span class="string">'Orientation - Alpha: '</span> + a + <span class="string">', Beta: '</span>+ b + <span class="string">', Gamma: '</span> + g);
+    }, <span class="literal">false</span>);
+} <span class="keyword">else</span> {
+    console.log(<span class="string">'This device does not support deviceorientation'</span>);
+}
+</code></pre>
+<p>借用这段代码你就可以看到手机上的方向传感器封装后的API显示出来的数值。<br>但是当你记录下来后，你可以发现。该数值在IPhone上是连续而且稳定的。但是在安卓上却十分容易产生波动。<br>那么，如何去除这种波动则成为了一个十分重要的问题了。</p>
+<hr>
+<p>事实上，这个问题也很简单。<br>我们只需要人工制造一个滤波器就可以了。<br>假设我们接受的数值为X，则设上一次数值为Xp，我们可以运用一个加权函数降低波动带来的影响。 </p>
+<p>final=X<em>alpha+(1-alpha)</em>Xp</p>
+<p>当然，假如你的要求比较精细。很多时候简单的一次加权并不能完整去除波动。<br>所以我们可以采用记录多个以往的值进行平均。 </p>
+<p>final = (X+(Xp1+Xp2+Xp3+Xp4))/5</p>
+<p>通过这种方式得出的数值波动会降低并且更加流畅。<br>鉴于此，对于传感器的数据调用，一定要真机调试取值适配机型，不要想当然的设置。例如当你把手机与地面垂直的时候，由于磁场感应器位置不佳，容易出现各种方向数值紊乱的场景。因此不推荐调用各种极值的数值。</p>
+<hr>
+<p>而关于手机传感器调用的频率，大概是50ms一次。因此我们不需要太过担心带来影响。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>因为工作需要，这段时间接触的手机传感器比较多。<br>总体来说，市场上的传感器表现参差不齐。IPhone在传感器表现方面卓越，而安卓由于什么机型都有，则显得差强人意。</p>
+<hr>
+<p>首先还是说说怎么在web端调用手机传感器吧。<br>这个还是比较简单的，只需要添加]]>
+    </summary>
+    
+  </entry>
+  
+</feed>
