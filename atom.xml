@@ -3,9 +3,9 @@
   <title><![CDATA[Bit Of Toxic]]></title>
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
-  <link href="http://blog.toxicjohann.com/"/>
+  <link href="http://yoursite.com/"/>
   <updated>2015-10-30T07:45:18.000Z</updated>
-  <id>http://blog.toxicjohann.com/</id>
+  <id>http://yoursite.com/</id>
   
   <author>
     <name><![CDATA[to-xic]]></name>
@@ -16,8 +16,8 @@
   
   <entry>
     <title><![CDATA[业务线第一周感悟]]></title>
-    <link href="http://blog.toxicjohann.com/2015/10/30/panda/"/>
-    <id>http://blog.toxicjohann.com/2015/10/30/panda/</id>
+    <link href="http://yoursite.com/2015/10/30/panda/"/>
+    <id>http://yoursite.com/2015/10/30/panda/</id>
     <published>2015-10-30T07:08:04.000Z</published>
     <updated>2015-10-30T07:45:18.000Z</updated>
     <content type="html"><![CDATA[<p>这周被借调出去了。去了一个挺忙碌的部门。说忙碌，其实也不算十分忙碌，主要是时间非常赶。但是，算是真正的第一次上业务线工作。感触挺多。</p>
@@ -47,8 +47,8 @@
   
   <entry>
     <title><![CDATA[web端touch开发手记]]></title>
-    <link href="http://blog.toxicjohann.com/2015/10/26/web-touch/"/>
-    <id>http://blog.toxicjohann.com/2015/10/26/web-touch/</id>
+    <link href="http://yoursite.com/2015/10/26/web-touch/"/>
+    <id>http://yoursite.com/2015/10/26/web-touch/</id>
     <published>2015-10-26T11:02:57.000Z</published>
     <updated>2015-10-26T11:03:43.000Z</updated>
     <content type="html"><![CDATA[<p>只是记录一下上次用到touch开发的时候遇到的一些问题。<br>一般来说，很多人开发touch事件都会调用zepto上的一些接口。不过由于本人愚钝，并不知道有这种东西。故直接调用了html5定义中的touchstart,touchend,touchmove三个事件。事实上这三个事件也十分完美的可以模拟出大部分touch事件。</p>
@@ -69,8 +69,8 @@
   
   <entry>
     <title><![CDATA[web端手机方向传感器闲谈]]></title>
-    <link href="http://blog.toxicjohann.com/2015/10/26/web-mobile-sensor/"/>
-    <id>http://blog.toxicjohann.com/2015/10/26/web-mobile-sensor/</id>
+    <link href="http://yoursite.com/2015/10/26/web-mobile-sensor/"/>
+    <id>http://yoursite.com/2015/10/26/web-mobile-sensor/</id>
     <published>2015-10-26T11:02:48.000Z</published>
     <updated>2015-10-26T11:03:21.000Z</updated>
     <content type="html"><![CDATA[<p>因为工作需要，这段时间接触的手机传感器比较多。<br>总体来说，市场上的传感器表现参差不齐。IPhone在传感器表现方面卓越，而安卓由于什么机型都有，则显得差强人意。</p>
