@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2015-10-30T07:45:18.000Z</updated>
+  <updated>2015-11-05T02:25:22.970Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,43 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[一个网页截图的功能尝试]]></title>
+    <link href="http://yoursite.com/2015/11/05/use-phantomjs-to-screenshot/"/>
+    <id>http://yoursite.com/2015/11/05/use-phantomjs-to-screenshot/</id>
+    <published>2015-11-05T01:12:36.000Z</published>
+    <updated>2015-11-05T02:25:22.970Z</updated>
+    <content type="html"><![CDATA[<p>这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——<a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a>。</p>
+<p>首先介绍一下phantomjs。phantomjs原理上是一个无头浏览器。就是一个不带界面的浏览器。基于此原因，phantomjs打开网页的速度会快点，而且phantomjs十分多的js API，包括dom元件控制、css、json、canvas、SVG等等。鉴于此，我们可以用phantomjs实现众多自己想要的截图。包括对页面上的某个部分进行截图。也正是基于这个原因，我们可以爬取其他网络，测试自己的网站等等。</p>
+<p>本次的网页截图我只实现了全网截图，可以考虑以后开取图象爬取功能，如google的banner爬取等等。</p>
+<p>安装phantomjs方法有很多，主站上有介绍。<br>例如在windows下就直接下载一个zip包加个环境变量就可以了，十分方便。不过对于linux方面反而没有辣么友好。ORZ。我这次安装的环境是ubuntu14.04。也是相当折腾了一番。</p>
+<p>当然你可以尝试一下<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">apt-get install phantomjs</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">不过我并不是很建议这么做，因为这样经常不成功，而且拉下来的版本据闻也不是最新版。保险点的话咱们还是自己编译吧。</span><br><span class="line">首先确保一下依赖的安装。</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">sudo apt-get install build-essential g++ flex bison gperf ruby perl \</span><br><span class="line">  libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \</span><br><span class="line">  libpng-dev libjpeg-dev python libx11-dev libxext-dev</span><br></pre></td></tr></table></figure></p>
+<p>然后在<a href="http://phantomjs.org/download.html" target="_blank" rel="external">官网</a>下载好源码包。<br>或者在git上直接拉取。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git://github.com/ariya/phantomjs.git</span><br></pre></td></tr></table></figure></p>
+<p>然后直接进入phantomjs运行编译脚本，这里貌似要接一下checkout。不然装下来的会是1.9.0.编译的时间比较长，有接近一个小时。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> phantomjs</span><br><span class="line">git checkout <span class="number">2.0</span></span><br><span class="line">./build.sh</span><br></pre></td></tr></table></figure></p>
+<p>不过我现在跑的貌似就是1.9.0，然后在dom加载上貌似会出bug，我升级一下啊。</p>
+<p>然后我是用node进行调用，所以我利用了<a href="https://github.com/sgentle/phantomjs-node" target="_blank" rel="external">phantomjs-node插件</a>。npm安装<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install phantom</span><br></pre></td></tr></table></figure></p>
+<p>简单易用。</p>
+<p>辣么调用就十分简单了。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> data=&#123;</span><br><span class="line">	webUrl:<span class="string">'http://wwww.baidu.com'</span>,</span><br><span class="line">	imageName:<span class="string">'test.png'</span></span><br><span class="line"><span class="built_in">let</span> phantom = require(<span class="string">'phantom'</span>);</span><br><span class="line">phantom.create(<span class="keyword">function</span> (ph) &#123;</span><br><span class="line">        ph.createPage(<span class="keyword">function</span> (page) &#123;</span><br><span class="line">            page.open(data.webUrl, <span class="keyword">function</span> (status) &#123;</span><br><span class="line">            <span class="built_in">set</span>Timeout(<span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">                page.render(imageName,<span class="keyword">function</span>(error)&#123;</span><br><span class="line">                  <span class="keyword">if</span>(error)&#123;</span><br><span class="line">                    console.log(error);</span><br><span class="line">                  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                  &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">                ph.exit();</span><br><span class="line">            &#125;,<span class="number">1000</span>);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure></p>
+<p>我的调用方法大概如上,有几个点要解释下。</p>
+<ul>
+<li>打开的url必须是完整的url网址。</li>
+<li>存储可以尝试png,jpg,pdf。gif尚未试验完整。</li>
+<li>延迟1秒截图是因为纵然页面加载完毕，但是可能渲染还是不好的，所以需要进行延迟。</li>
+</ul>
+<p>那么问题就产生了，这样子后台处理的时间较长，如何让前台拉取数据。方法有以下：</p>
+<ul>
+<li>傻瓜版：前台利用setTimeout延迟拉取数据。</li>
+<li>实用版：websocket</li>
+</ul>
+<p>thinkjs中的<a href="https://thinkjs.org/zh-CN/doc/2.0/adapter_websocket.html" target="_blank" rel="external">websocket</a>已经包装好，十分好用。欢迎大家尝试。反正我用了十分好玩。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——<a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a>。</p>
+<p>首先介绍一下phantom]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[业务线第一周感悟]]></title>

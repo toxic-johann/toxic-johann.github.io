@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  
+  <title>一个网页截图的功能尝试 | Bit Of Toxic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+    <meta name="author" content="to-xic">
+  
+  
+    <meta name="description" content="这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——phantomjs。
+首先介绍一下phantomjs。phantomjs原理上是一个无头浏览器。就是一个不带界面的浏览器。基于此原因，phantomjs打开网页的速度会快点，而且phantomjs十分多的js API，包括dom元件控制、css、json、canvas、SVG等等。鉴于此，我们可以用phantomjs实现">
+  
+  <meta name="description" content="这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——phantomjs。
+首先介绍一下phantomjs。phantomjs原理上是一个无头浏览器。就是一个不带界面的浏览器。基于此原因，phantomjs打开网页的速度会快点，而且phantomjs十分多的js API，包括dom元件控制、css、json、canvas、SVG等等。鉴于此，我们可以用phantomjs实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个网页截图的功能尝试">
+<meta property="og:url" content="http://yoursite.com/2015/11/05/use-phantomjs-to-screenshot/index.html">
+<meta property="og:site_name" content="Bit Of Toxic">
+<meta property="og:description" content="这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——phantomjs。
+首先介绍一下phantomjs。phantomjs原理上是一个无头浏览器。就是一个不带界面的浏览器。基于此原因，phantomjs打开网页的速度会快点，而且phantomjs十分多的js API，包括dom元件控制、css、json、canvas、SVG等等。鉴于此，我们可以用phantomjs实现">
+<meta property="og:updated_time" content="2015-11-05T02:25:22.970Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一个网页截图的功能尝试">
+<meta name="twitter:description" content="这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——phantomjs。
+首先介绍一下phantomjs。phantomjs原理上是一个无头浏览器。就是一个不带界面的浏览器。基于此原因，phantomjs打开网页的速度会快点，而且phantomjs十分多的js API，包括dom元件控制、css、json、canvas、SVG等等。鉴于此，我们可以用phantomjs实现">
+  
+    <link rel="alternate" href="/atom.xml" title="Bit Of Toxic" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  
+<script type="text/javascript">
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9d865e87f3199160311b03cd56126f47";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+
+</script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <header id="header">
+  <div class="title">
+    <h1><a href="/">Bit Of Toxic</a></h1>
+    <p><a href="/">李猜猜，被折磨得死去活来的菜鸟</a></p>
+  </div>
+  <nav class="nav">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+    <div class="clearfix"></div>
+  </nav>
+  <div class="clearfix"></div>
+</header>
+    <div class="content"><article class="post">
+  <header>
+    
+      <div class="icon"></div>
+      <a href="/2015/11/05/use-phantomjs-to-screenshot/">
+  <time datetime="2015-11-05T01:12:36.000Z">
+    2015-11-05
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title">一个网页截图的功能尝试</h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——<a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a>。</p>
+<p>首先介绍一下phantomjs。phantomjs原理上是一个无头浏览器。就是一个不带界面的浏览器。基于此原因，phantomjs打开网页的速度会快点，而且phantomjs十分多的js API，包括dom元件控制、css、json、canvas、SVG等等。鉴于此，我们可以用phantomjs实现众多自己想要的截图。包括对页面上的某个部分进行截图。也正是基于这个原因，我们可以爬取其他网络，测试自己的网站等等。</p>
+<p>本次的网页截图我只实现了全网截图，可以考虑以后开取图象爬取功能，如google的banner爬取等等。</p>
+<p>安装phantomjs方法有很多，主站上有介绍。<br>例如在windows下就直接下载一个zip包加个环境变量就可以了，十分方便。不过对于linux方面反而没有辣么友好。ORZ。我这次安装的环境是ubuntu14.04。也是相当折腾了一番。</p>
+<p>当然你可以尝试一下<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">apt-get install phantomjs</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">不过我并不是很建议这么做，因为这样经常不成功，而且拉下来的版本据闻也不是最新版。保险点的话咱们还是自己编译吧。</span><br><span class="line">首先确保一下依赖的安装。</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">sudo apt-get install build-essential g++ flex bison gperf ruby perl \</span><br><span class="line">  libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \</span><br><span class="line">  libpng-dev libjpeg-dev python libx11-dev libxext-dev</span><br></pre></td></tr></table></figure></p>
+<p>然后在<a href="http://phantomjs.org/download.html" target="_blank" rel="external">官网</a>下载好源码包。<br>或者在git上直接拉取。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git://github.com/ariya/phantomjs.git</span><br></pre></td></tr></table></figure></p>
+<p>然后直接进入phantomjs运行编译脚本，这里貌似要接一下checkout。不然装下来的会是1.9.0.编译的时间比较长，有接近一个小时。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> phantomjs</span><br><span class="line">git checkout <span class="number">2.0</span></span><br><span class="line">./build.sh</span><br></pre></td></tr></table></figure></p>
+<p>不过我现在跑的貌似就是1.9.0，然后在dom加载上貌似会出bug，我升级一下啊。</p>
+<p>然后我是用node进行调用，所以我利用了<a href="https://github.com/sgentle/phantomjs-node" target="_blank" rel="external">phantomjs-node插件</a>。npm安装<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install phantom</span><br></pre></td></tr></table></figure></p>
+<p>简单易用。</p>
+<p>辣么调用就十分简单了。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> data=&#123;</span><br><span class="line">	webUrl:<span class="string">'http://wwww.baidu.com'</span>,</span><br><span class="line">	imageName:<span class="string">'test.png'</span></span><br><span class="line"><span class="built_in">let</span> phantom = require(<span class="string">'phantom'</span>);</span><br><span class="line">phantom.create(<span class="keyword">function</span> (ph) &#123;</span><br><span class="line">        ph.createPage(<span class="keyword">function</span> (page) &#123;</span><br><span class="line">            page.open(data.webUrl, <span class="keyword">function</span> (status) &#123;</span><br><span class="line">            <span class="built_in">set</span>Timeout(<span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">                page.render(imageName,<span class="keyword">function</span>(error)&#123;</span><br><span class="line">                  <span class="keyword">if</span>(error)&#123;</span><br><span class="line">                    console.log(error);</span><br><span class="line">                  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                  &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">                ph.exit();</span><br><span class="line">            &#125;,<span class="number">1000</span>);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure></p>
+<p>我的调用方法大概如上,有几个点要解释下。</p>
+<ul>
+<li>打开的url必须是完整的url网址。</li>
+<li>存储可以尝试png,jpg,pdf。gif尚未试验完整。</li>
+<li>延迟1秒截图是因为纵然页面加载完毕，但是可能渲染还是不好的，所以需要进行延迟。</li>
+</ul>
+<p>那么问题就产生了，这样子后台处理的时间较长，如何让前台拉取数据。方法有以下：</p>
+<ul>
+<li>傻瓜版：前台利用setTimeout延迟拉取数据。</li>
+<li>实用版：websocket</li>
+</ul>
+<p>thinkjs中的<a href="https://thinkjs.org/zh-CN/doc/2.0/adapter_websocket.html" target="_blank" rel="external">websocket</a>已经包装好，十分好用。欢迎大家尝试。反正我用了十分好玩。</p>
+
+    
+  </div>
+  <footer>
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">评论</h1>
+  <div class="ds-thread" data-title="一个网页截图的功能尝试">
+  </div>
+</section>
+</div>
+  </div>
+  <footer id="footer"><div class="copyright">
+  
+  &copy; 2015 <a href="/">to-xic</a>
+  
+</div>
+<div class="theme-copyright">
+  Theme by <a href="https://github.com/orderedlist" target="_blank">orderedlist</a>
+   | 
+  Redesign by <a href="http://heroicyang.com/" target="_blank">Heroic Yang</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script src="/js/scale.fix.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = { short_name: 'toxicjohann' };
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+  (function($){
+    $('.fancybox').fancybox();
+  })(jQuery);
+</script>
+
+</body>
+</html>
