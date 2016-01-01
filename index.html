@@ -76,6 +76,68 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2016/01/01/some-trap-i-meet-these-days/">
+  <time datetime="2016-01-01T06:59:11.000Z">
+    2016-01-01
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/01/01/some-trap-i-meet-these-days/">最近做过的一些事</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>很久都没有空写博客了。难得元旦，回来记录下最近做的事。</p>
+<h1 id="svg">svg</h1><p>svg还是一个挺有用的属性，用来绘制一些想要的形状。他最大的优点是可以随便切换颜色。这很符合我们的组件需求。</p>
+<p>内联svg还是比较容易的，直接在页面上写入代码就好了。支持度还是不错。</p>
+<p>当然你还有很多种方法使用svg，例如在属性的backgroud上写入svg代码，又或者直接引入svg图片。</p>
+<p>不过这里需要注意一个点，在android手机上，svg得stroke-width：0px属性会失效。因此如果你又有stroke属性，又需要调整它的宽度为0。在安卓手机上你可以直接把stroke设为transparent或者移除等等。</p>
+<h1 id="微信授权页面跳转问题">微信授权页面跳转问题</h1><p>这算是一个颇为常用的场景。一个web应用，走到某一步需要跳转微信进行授权，但是微信授权完毕后是一个redirect，给你带回来一些微信上的信息。这相当于重新打开一次你的应用。这对于客户体验来说未必是最佳的。</p>
+<p>那么也就是说，我们在微信授权的时候，要记录一下我们现在得web APP的状态。当然办法有很多，例如我们可以写localStorage等等。但是我还死嫌这个办法稍微有点麻烦。</p>
+<p>既然微信会重定向到我们这个页面的地址，那么我们只要在这个页面的地址上做些手脚，记录下一些参数表明状态就好。</p>
+<p>一般来说我们会才用window.location.hash或者window.location.search属性。但是令人可悲的是，微信会把他们清掉。</p>
+<p>不过还是有机会的，微信会在你的页面上读取你的当前地址，无论这个地址是什么形式。那么问题就变得简单了，我们只需要修改window.location.href就可以了。当然我们不能直接更改，那样子会刷新页面，于是就用一个很传统的方法。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">window.history.pushState(<span class="string">"test"</span>, <span class="string">"test"</span>, location.href +<span class="string">"some code you need to write"</span>);</span><br></pre></td></tr></table></figure>
+<h1 id="多说接口利用">多说接口利用</h1><p>多说是个很方便的应用，你只要插入就可以使用，不需要自己架构评论系统。不过有的时候，我们的需求会多一点。比如，我们想在自己的微信公众号的一些页面里面接入多说评论，你就会发现一个很奇葩得状况，你评论竟然要去多说的公众号进行授权。这显然不是我们想要的结果。</p>
+<p>于是这个时候，就直接使用多说的接口就好了。</p>
+<p>翻阅一下<a href="http://dev.duoshuo.com/docs" target="_blank" rel="external">多说文档</a>，我们很快可以找到自己需要得接口，获取评论啊各种。这些按下不表。我们谈谈怎么不授权进行评论。</p>
+<p>我采用的是多说的<a href="http://dev.duoshuo.com/docs/512d6e2e418847315a000001" target="_blank" rel="external">匿名评论接口</a>。不过你很快就会发现，匿名评论下不能写入头像。辣肿么办呢。你可以用其余字段表示你的头像，例如author_url，第一这个字段不常用、第二他也是地址，在数据库保存的格式应该会一致。然后就可以解决这个问题了。</p>
+<p>不过多说的所有接口都没有cros设置，因此你要自己进行跨域请求，万幸的是他提供了jsonp的格式。那么就好办很多了。</p>
+<p>如果是get的话，直接这么调用<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">	url: <span class="string">'http://api.duoshuo.com/threads/listPosts.jsonp?'</span>,</span><br><span class="line">	<span class="built_in">type</span>: <span class="string">'GET'</span>,</span><br><span class="line">	data:&#123;&#125;,</span><br><span class="line">	dataType: <span class="string">'jsonp'</span>,</span><br><span class="line">	error: <span class="keyword">function</span>(xhr, status, error) &#123;</span><br><span class="line">		console.log(error);</span><br><span class="line">	&#125;,</span><br><span class="line">	success: <span class="keyword">function</span>(data) &#123;&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>如果是post的话，自己找方法吧。因为我只是评论接口需要post，然后他能够收到，其余的我就不管鸟。</p>
+<h1 id="数据的版本系统建立">数据的版本系统建立</h1><p>这个给我的一个很深刻的体会是。如果是主数据，一定要做version版本处理，并且最好备份多一份。然后建立一个升级体系。当升级出错的时候，调用最初的备份，重新升级。能解决很多问题。</p>
+<h1 id="一些编写代码的反思">一些编写代码的反思</h1><p>修改了比较多的代码，看到过一个弹窗，每次交互都会进行全弹窗重绘和跟后台数据拉取。</p>
+<p>在代码设计的时候，一定要注意组件化，把东西抽取出来。</p>
+<p>和后台的交互，要充分考虑到压力和延时的问题。删除不必要的链式等待等等。</p>
+<h1 id="CSS样式">CSS样式</h1><p>CSS真的很强大。最近用calc()属性解决了页面footer的问题。</p>
+<p>一般来说，footer最烦的问题是，页面太短怎么办。假如页面太短，footer很容易顶上去，底下留下一段空白，这无疑是极难容忍的。</p>
+<p>这个时候，我们需要给中间的content设置一个高度，把它顶下去。那么这个高度真么算呢。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">min-height: <span class="number">500</span>px;</span><br><span class="line">height: calc(<span class="number">100</span>% - <span class="number">200</span>px);</span><br></pre></td></tr></table></figure>
+<p>这样设置就好了，首先，根据你的content，给他一个最小高度。以免遇到极小的屏幕，他被收了进去，footer反而一直在页面上看不到一部分。</p>
+<p>然后利用calc属性，才用视口高度（100%）减去footer和header的高度，这个是用于屏幕太大的时候，撑开footer和header。</p>
+<p>这样子就完美解决了页面过短的时候的footer问题了。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2015/12/31/goodbye-2015/">
   <time datetime="2015-12-31T08:03:01.000Z">
     2015-12-31
@@ -91,7 +153,7 @@ var _hmt = _hmt || [];
   
   <div class="entry">
     
-      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="http://music.163.com/outchain/player?type=2&id=3880078&auto=1&height=32"></iframe>
+      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="http://music.163.com/outchain/player?type=2&id=3880078&auto=0&height=32"></iframe>
 
 <p>我现在一个人，坐在北京的小屋里，听着这首歌，敲下这篇文章。</p>
 <p>2015对我来说，意味着什么。回想起来，似乎发生的事情太多，有点理不清头绪。</p>
@@ -492,7 +554,7 @@ var _hmt = _hmt || [];
   </div>
   <footer id="footer"><div class="copyright">
   
-  &copy; 2015 <a href="/">to-xic</a>
+  &copy; 2016 <a href="/">to-xic</a>
   
 </div>
 <div class="theme-copyright">
