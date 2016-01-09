@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-01-09T05:05:04.730Z</updated>
+  <updated>2016-01-09T05:16:16.601Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2016/01/09/sth-about-video/"/>
     <id>http://yoursite.com/2016/01/09/sth-about-video/</id>
     <published>2016-01-09T03:53:21.000Z</published>
-    <updated>2016-01-09T05:05:04.730Z</updated>
+    <updated>2016-01-09T05:16:16.601Z</updated>
     <content type="html"><![CDATA[<h1 id="为什么使用视频">为什么使用视频</h1><p>为什么我们要在页面插入视频呢，因为视频可以生成很多好效果，这些东西如果放在页面上，无论使用css或者骨骼动画等方法，性能都未必比视频好。<br>因此，当我们需要的交互不多的时候，使用视频展示较炫的效果是可取的。</p>
 <p>参照曾经挺火的<a href="http://wefire.qq.com/act/a20150826kris/wb/index.htm?ADTAG=a20150826kris.tiaozhuan.wb" target="_blank" rel="external">吴亦凡html5</a>。我们可以看到，所有基本比较炫的效果其实都是视频。</p>
 <p>如果你要插入视频，一般格式有两种。视频网站提供的iframe或者使用html的video标签。</p>
@@ -59,6 +59,8 @@
 <p>没错就是这么坑。不过也就不要添加了，直接视频隐藏掉就好了。</p>
 <h1 id="video事件">video事件</h1><p>video可以监听这几个事件，play,pause,ended。分别对应视频播放、暂停、结束播放三个细节。利用这几个事件你可以监听视频。</p>
 <p>然后如果你想做暂停的时候给视频弹些元素的话，在iOS是可以尝试的，安卓估计可以洗洗睡了。到时候暂停直接把视频隐藏掉吧。然后再浮动你的元素。</p>
+<h1 id="默认行为">默认行为</h1><p>在手机上一般会有些默认行为，例如长按选中之类的。这个如果先前没有做防止，而且视频会诱导用户长按的话。可以写一下。这个在我之前的文章也有提过。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-webkit-user-select : none; </span><br><span class="line">-webkit-touch-callout:none;</span><br></pre></td></tr></table></figure>
 <h1 id="iframe">iframe</h1><p>接下来再讨论下视频网站给的iframe，这里iframe当然可以内嵌的了，但是由于跨域限制，你不能制造什么自动播放或者监听等方法了。就酱。</p>
 <h1 id="后记">后记</h1><p>其实这篇文章应该在一个月前就应该写的，但是那时候由于业务没有做完，所以就没有继续研究下去，这个星期重新拾起这项业务，所以就重新研究了下。</p>
 <p>这项业务主要是研究怎样在微信页面里使用视频，所以针对的主要是微信自己所使用的浏览器组件，其余的一些奇怪的手机组件没有怎么测试。当然了，现在市面上手机这么多，我也难以覆盖全。如果大家看到有纰漏，欢迎提出。</p>
