@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20160109123413.png">
 <meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20160109124030.png">
 <meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20160109124859.png">
-<meta property="og:updated_time" content="2016-01-09T05:16:16.601Z">
+<meta property="og:updated_time" content="2016-01-09T05:28:40.132Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="微信页面内嵌视频的一些心得">
 <meta name="twitter:description" content="为什么使用视频为什么我们要在页面插入视频呢，因为视频可以生成很多好效果，这些东西如果放在页面上，无论使用css或者骨骼动画等方法，性能都未必比视频好。因此，当我们需要的交互不多的时候，使用视频展示较炫的效果是可取的。
@@ -114,7 +114,7 @@ var _hmt = _hmt || [];
 <p>那就GG了，直接露马脚了。其实加个标签就好。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;video class=<span class="string">"video-box"</span> x-webkit-airplay=<span class="string">"true"</span> webkit-playsinline=<span class="string">"true"</span> preload=<span class="string">"auto"</span> src=<span class="string">"http://ossweb-img.qq.com/images/wefire/act/a20150826kris/v3.mp4"</span>&gt;&lt;/video&gt;</span><br></pre></td></tr></table></figure>
 <p>没错就是这个。。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">webkit-playsinline=<span class="string">"true"</span></span><br></pre></td></tr></table></figure></p>
-<p>通过标签允许video内联播放，记得在不要让你的video的css属性里display设为block或者里其他方式，如果有，请改为<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">display:inline</span><br></pre></td></tr></table></figure></p>
+<p>通过标签允许video内联播放，记得不要把你的video的css属性里display设为block之类的，如果有，去掉或者改为<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">display:inline</span><br></pre></td></tr></table></figure></p>
 <p>这里顺便说说x-webkit-airplay属性，这个是用于调用苹果官方的airplay服务的。一般用于多个屏幕共享的。我查查是这样的。由于我也没怎么用过这个服务，其实不添加他也没有什么大影响。</p>
 <p>不过可能方便于共享状况的其他设备吧。如果有比较清楚这个属性的欢迎告诉我。</p>
 <h1 id="控制条">控制条</h1><p>是否区别为视频，控制条是一个标志物。</p>
