@@ -1,0 +1,197 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  
+  <title>Bit Of Toxic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+    <meta name="author" content="to-xic">
+  
+  
+  <meta name="description" content="toxic | johann |javascript |blog">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bit Of Toxic">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
+<meta property="og:site_name" content="Bit Of Toxic">
+<meta property="og:description" content="toxic | johann |javascript |blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bit Of Toxic">
+<meta name="twitter:description" content="toxic | johann |javascript |blog">
+  
+    <link rel="alternate" href="/atom.xml" title="Bit Of Toxic" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  
+<script type="text/javascript">
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9d865e87f3199160311b03cd56126f47";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+
+</script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <header id="header">
+  <div class="title">
+    <h1><a href="/">Bit Of Toxic</a></h1>
+    <p><a href="/">李猜猜，被折磨得死去活来的菜鸟</a></p>
+  </div>
+  <nav class="nav">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+    <div class="clearfix"></div>
+  </nav>
+  <div class="clearfix"></div>
+</header>
+    <div class="content">
+
+
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
+      <a href="/2015/10/26/web-mobile-sensor/">
+  <time datetime="2015-10-26T11:02:48.000Z">
+    2015-10-26
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2015/10/26/web-mobile-sensor/">web端手机方向传感器闲谈</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>因为工作需要，这段时间接触的手机传感器比较多。<br>总体来说，市场上的传感器表现参差不齐。IPhone在传感器表现方面卓越，而安卓由于什么机型都有，则显得差强人意。</p>
+<hr>
+<p>首先还是说说怎么在web端调用手机传感器吧。<br>这个还是比较简单的，只需要添加一个事件就可以了。<br>在最新的h5规范里面，引入了 <strong>DeviceOrientation</strong> 事件。如果没猜错，该接口应该是调用手机里的综合方向传感器。<br>事实上，手机上的方向传感器有多个。例如在安卓手机上就有11种传感器，而诸如</p>
+<ul>
+<li>TYPE_GYROSCOPE </li>
+<li>TYPE_LINEAR_ACCELERATION  </li>
+<li>TYPE_MAGNETIC_FIELD </li>
+<li>TYPE_ORIENTATION </li>
+<li>TYPE_ROTATION_VECTOR </li>
+</ul>
+<p>均可以用作对手机的状态翻转等进行监测。当然这需要不同的方法，按下不表。<br>而目测DeviceOrientation方法是结合了重力检测与磁场检测两方面实现的翻转检测。<br>DeviceOrientation方法主要监测的是手机上的三个翻转角。<br>你可以将手机水平至于桌面上。</p>
+<ul>
+<li>手机在水平面上旋转为alpha角，此角是基于Z轴旋转。实现方式一般是基于磁场。因此在各种机型上你可以发现这个数值差异十分大。</li>
+<li>手机正常翻起与桌面夹角为beta角，此角是基于X轴旋转。实现方式一般是基于重力分量。</li>
+<li>手机侧翻与桌面夹角为gama角，此角是基于Y轴旋转。实现方式也是基于重力分量。</li>
+</ul>
+<p>我们可以在<a href="http://www.w3.org/html/ig/zh/wiki/DeviceOrientation%E4%BA%8B%E4%BB%B6%E8%A7%84%E8%8C%83" target="_blank" rel="external">w3c</a>上阅读相关的定义数据。</p>
+<p>做一个做简单的调用例子 </p>
+<pre><code class="bash"><span class="keyword">if</span> (window.DeviceOrientationEvent) {
+    window.addEventListener(<span class="string">'deviceorientation'</span>, <span class="keyword">function</span>(event) {
+        var a = event.alpha,
+            b = event.beta,
+            g = event.gamma;
+        console.log(<span class="string">'Orientation - Alpha: '</span> + a + <span class="string">', Beta: '</span>+ b + <span class="string">', Gamma: '</span> + g);
+    }, <span class="literal">false</span>);
+} <span class="keyword">else</span> {
+    console.log(<span class="string">'This device does not support deviceorientation'</span>);
+}
+</code></pre>
+<p>借用这段代码你就可以看到手机上的方向传感器封装后的API显示出来的数值。<br>但是当你记录下来后，你可以发现。该数值在IPhone上是连续而且稳定的。但是在安卓上却十分容易产生波动。<br>那么，如何去除这种波动则成为了一个十分重要的问题了。</p>
+<hr>
+<p>事实上，这个问题也很简单。<br>我们只需要人工制造一个滤波器就可以了。<br>假设我们接受的数值为X，则设上一次数值为Xp，我们可以运用一个加权函数降低波动带来的影响。 </p>
+<p>final=X<em>alpha+(1-alpha)</em>Xp</p>
+<p>当然，假如你的要求比较精细。很多时候简单的一次加权并不能完整去除波动。<br>所以我们可以采用记录多个以往的值进行平均。 </p>
+<p>final = (X+(Xp1+Xp2+Xp3+Xp4))/5</p>
+<p>通过这种方式得出的数值波动会降低并且更加流畅。<br>鉴于此，对于传感器的数据调用，一定要真机调试取值适配机型，不要想当然的设置。例如当你把手机与地面垂直的时候，由于磁场感应器位置不佳，容易出现各种方向数值紊乱的场景。因此不推荐调用各种极值的数值。</p>
+<hr>
+<p>而关于手机传感器调用的频率，大概是50ms一次。因此我们不需要太过担心带来影响。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+
+  <nav id="pagination">
+  
+    <a href="/" class="prev">上一页</a>
+  
+  
+  <div class="clearfix"></div>
+</nav>
+
+</div>
+  </div>
+  <footer id="footer"><div class="copyright">
+  
+  &copy; 2016 <a href="/">to-xic</a>
+  
+</div>
+<div class="theme-copyright">
+  Theme by <a href="https://github.com/orderedlist" target="_blank">orderedlist</a>
+   | 
+  Redesign by <a href="http://heroicyang.com/" target="_blank">Heroic Yang</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script src="/js/scale.fix.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = { short_name: 'toxicjohann' };
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+  (function($){
+    $('.fancybox').fancybox();
+  })(jQuery);
+</script>
+
+</body>
+</html>

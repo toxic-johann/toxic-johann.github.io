@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-01-01T08:58:26.958Z</updated>
+  <updated>2016-01-09T05:00:44.126Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,129 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[微信页面内嵌视频的一些心得]]></title>
+    <link href="http://yoursite.com/2016/01/09/sth-about-video/"/>
+    <id>http://yoursite.com/2016/01/09/sth-about-video/</id>
+    <published>2016-01-09T03:53:21.000Z</published>
+    <updated>2016-01-09T05:00:44.126Z</updated>
+    <content type="html"><![CDATA[<p>这篇文章其实应该在一个月前就应该写的，但是那时候由于业务没有做完，所以就没有继续研究下去，这个星期重新拾起这项业务，所以就重新研究了下。</p>
+<p>这项业务主要是研究怎样在微信页面里使用视频，所以针对的主要是微信自己所使用的浏览器组件，其余的一些奇怪的手机组件没有怎么测试。当然了，现在市面上手机这么多，我也难以覆盖全。如果大家看到有纰漏，欢迎提出。</p>
+<h1 id="为什么使用视频">为什么使用视频</h1><p>为什么我们要在页面插入视频呢，因为视频可以生成很多好效果，这些东西如果放在页面上，无论使用css或者骨骼动画等方法，性能都未必比视频好。<br>因此，当我们需要的交互不多的时候，使用视频展示较炫的效果是可取的。</p>
+<p>参照曾经挺火的<a href="http://wefire.qq.com/act/a20150826kris/wb/index.htm?ADTAG=a20150826kris.tiaozhuan.wb" target="_blank" rel="external">吴亦凡html5</a>。我们可以看到，所有基本比较炫的效果其实都是视频。</p>
+<p>如果你要插入视频，一般格式有两种。视频网站提供的iframe或者使用html的video标签。</p>
+<p>我们首先来谈谈使用video标签的。</p>
+<h1 id="内嵌">内嵌</h1><p>这个问题主要针对的是iOS。</p>
+<p>我们可以看到上述html5例子里，视频都是内嵌在页面里，给我们的感觉就是页面在动。但是在iOS中，video标签是会直接使用系统原生视频播放器播放的。</p>
+<p>那就GG了，直接露马脚了。其实加个标签就好。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;video class=<span class="string">"video-box"</span> x-webkit-airplay=<span class="string">"true"</span> webkit-playsinline=<span class="string">"true"</span> preload=<span class="string">"auto"</span> src=<span class="string">"http://ossweb-img.qq.com/images/wefire/act/a20150826kris/v3.mp4"</span>&gt;&lt;/video&gt;</span><br></pre></td></tr></table></figure>
+<p>没错就是这个。。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">webkit-playsinline=<span class="string">"true"</span></span><br></pre></td></tr></table></figure></p>
+<p>通过标签允许video内联播放，记得在不要让你的video的css属性里display设为block或者里其他方式，如果有，请改为<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">display:inline</span><br></pre></td></tr></table></figure></p>
+<p>这里顺便说说x-webkit-airplay属性，这个是用于调用苹果官方的airplay服务的。一般用于多个屏幕共享的。我查查是这样的。由于我也没怎么用过这个服务，其实不添加他也没有什么大影响。</p>
+<p>不过可能方便于共享状况的其他设备吧。如果有比较清楚这个属性的欢迎告诉我。</p>
+<h1 id="控制条">控制条</h1><p>是否区别为视频，控制条是一个标志物。</p>
+<p>在iOS下，禁止这个属性十分简单。不要添加controls属性就好了。</p>
+<p>添加了controls会自动绘制控制条。</p>
+<p>但是在安卓的微信里，微信调用了腾讯的x5浏览器，这个就有bug了……</p>
+<p>可以看看<a href="http://x5.tencent.com/guide?id=2009" target="_blank" rel="external">文档</a>的9、24、32条。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20160109123002.png" alt="x5对于视频控件的解释"></p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20160109123940.png" alt="x5对于强制播放器面板的解释"></p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20160109123413.png" alt="x5对于qq域名下的controls隐藏解释"></p>
+<p>难道我们就此GG了吗？</p>
+<p>哈哈哈，怎么可能。那就把视频放大，把控制条挤出视口呗！</p>
+<p>我们可以拍一个视频，周围流下一些没有的空隙，然后放大这个视频，让其稍稍超出视口。由于控制条总在video标签下的最底，因此，他就会处于视口外，客户无法控制。</p>
+<h1 id="自动播放">自动播放</h1><p>其实自动播放本来是一个很简单的属性。因为在标准里写明有autoplay属性。但是，各种敬爱的产品都认为，自动播放太残暴，会消耗用户的流量，所以，我们禁止autoplay属性！</p>
+<p>好的，这种情况下，怎么办呢。</p>
+<p>在iOS下，我们直接调用video.play()函数进行播放就好了。虽然要写多一个代码。</p>
+<p>但是，是的，X5又来了！</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20160109124030.png" alt="x5对于自动播放的控制"></p>
+<p>这个我们可以看到大家的解决方式都是一致的。</p>
+<p>利用touchstart来进行触发，把整个页面绑入事件，当用户一旦触碰到页面就开始播放。因为用户几乎不可能不触碰页面，所以就给了用户自动播放的体验。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$(document).one(<span class="string">'touchstart'</span>, <span class="keyword">function</span> (e) &#123;</span><br><span class="line">   var v2 = query(<span class="string">'#videoIndex2'</span>);</span><br><span class="line">   v2.play();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>其实这个方法也是挺好的，因为我们视频文件都要加载，在这之前可以用一个图片进行覆盖，然后点击后去除图片，这段交互时间可以保证我们的视频加载不被人发现。</p>
+<h1 id="poster">poster</h1><p>poster也是一个坑，poster的属性表明他只会按照原图的大小进行展示，不会对图片进行任何拉伸。所以如果你想用一个响应式的图片的话。在前面覆盖img吧。</p>
+<p>但是这里有一个细节，没错，也是X5。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20160109124859.png" alt="x5对于视频独立view的解释"></p>
+<p>就是说，一旦视频开始播放，你不能再在上面添加其他元素了……</p>
+<p>没错就是这么坑。不过也就不要添加了，直接视频隐藏掉就好了。</p>
+<h1 id="video事件">video事件</h1><p>video可以监听这几个事件，play,pause,ended。分别对应视频播放、暂停、结束播放三个细节。利用这几个事件你可以监听视频。</p>
+<p>然后如果你想做暂停的时候给视频弹些元素的话，在iOS是可以尝试的，安卓估计可以洗洗睡了。到时候暂停直接把视频隐藏掉吧。然后再浮动你的元素。</p>
+<h1 id="iframe">iframe</h1><p>接下来再讨论下视频网站给的iframe，这里iframe当然可以内嵌的了，但是由于跨域限制，你不能制造什么自动播放或者监听等方法了。就酱。</p>
+<p>差不多这样吧，想到再补充2333。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这篇文章其实应该在一个月前就应该写的，但是那时候由于业务没有做完，所以就没有继续研究下去，这个星期重新拾起这项业务，所以就重新研究了下。</p>
+<p>这项业务主要是研究怎样在微信页面里使用视频，所以针对的主要是微信自己所使用的浏览器组件，其余的一些奇怪的手机组件没有怎么测]]>
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[谈谈最近做的SVG]]></title>
+    <link href="http://yoursite.com/2016/01/09/sth-about-svg/"/>
+    <id>http://yoursite.com/2016/01/09/sth-about-svg/</id>
+    <published>2016-01-09T03:26:28.000Z</published>
+    <updated>2016-01-09T03:52:38.187Z</updated>
+    <content type="html"><![CDATA[<p>其实svg是挺有用的图像表现方式。首先明确一下一些常见的优点：</p>
+<ul>
+<li>矢量化</li>
+<li>文本控制，容易编辑</li>
+<li>大小较小</li>
+<li>css比较容易控制</li>
+</ul>
+<p>当然，还是有些众所周知的缺点</p>
+<ul>
+<li>毕竟运用了dom标签</li>
+<li>跑动画真心不合适</li>
+<li>是用元素控制交互 </li>
+</ul>
+<p>基于这几个原因，所以一般svg都是用于一些静态图片的替代。因为矢量的特点，他对于缩放的兼容性比较好。而且CSS可以直接控制这种优良属性，也方便了程序员进行直接操控。</p>
+<p>插入svg其实有好几个方式。</p>
+<ul>
+<li>直接用img插入</li>
+</ul>
+<p>这种情况下svg就相当于一个图片。这种使用的方式是最简单的，但是我们不能利用css去操控它的属性。这对于一些不需要更换的svg是挺经济的方式。</p>
+<ul>
+<li>使用backgroud属性写入</li>
+</ul>
+<p>这种情况一般用于你不想用img或者svg标签的时候使用。其实把代码直接写在css样式里也不坏。</p>
+<ul>
+<li>使用svg标签进行内联</li>
+</ul>
+<p>这种情况一般可以用于那些你可能要经常操作的svg文本。内联的svg我们可以通过css修改他的各种属性，例如我们可以直接通过添加一个class进行换肤等等。</p>
+<p>基于这次业务的需求，我选择了svg。因为我们可能频繁修改他的样式。</p>
+<p>其实我有打算过一种模式，我通过在线拉取svg文件，抽取他当中的xml代码，然后生成内联svg。不过这种模式在手机上并不怎么可行。</p>
+<p>因此我现在的做法都是直接传输svg代码，然后内联到html中。</p>
+<p>为了满足我的可以各种更改的需求，我首先要将收到的代码进行过滤。</p>
+<p>由于我们客户一般修改的是颜色，因此我需要把形状属性的颜色属性去掉。</p>
+<p>形状属性只要有以下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;circle&gt;</span><br><span class="line">&lt;ellipse&gt;</span><br><span class="line">&lt;line&gt;</span><br><span class="line">&lt;path&gt;</span><br><span class="line">&lt;polygon&gt;</span><br><span class="line">&lt;polyline&gt;</span><br><span class="line">&lt;rect&gt;</span><br></pre></td></tr></table></figure>
+<p>我需要做的是把其中的fill，stroke等属性过滤掉，然后利用css控制这些属性。就可以达到我需要的效果。</p>
+<p>这里主要遇到的坑有两个。</p>
+<ul>
+<li>android里stroke-width=0px属性失效。</li>
+</ul>
+<p>这个在早先的文章里也提过，加个判断，如果是0就不要添加stroke属性就好。</p>
+<ul>
+<li>symbol的id</li>
+</ul>
+<p>这个算是自己傻逼的一个例证吧。symbol是svg一个常用的标签。代表元件，用于东西复用的，利用use标签调用。symbol使用id进行区别。如果你添加了多个symbol是相同id的话，use拿到的当然永远是第一个了。</p>
+<p>所以，但凡以后遇到添加id的，记得增加随机id保持其独立性。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>其实svg是挺有用的图像表现方式。首先明确一下一些常见的优点：</p>
+<ul>
+<li>矢量化</li>
+<li>文本控制，容易编辑</li>
+<li>大小较小</li>
+<li>css比较容易控制</li>
+</ul>
+<p>当然，还是有些众所周知的缺点</p>
+<ul]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[为了离开你，我做了什么]]></title>
