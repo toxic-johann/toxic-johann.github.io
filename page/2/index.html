@@ -76,6 +76,48 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2015/10/26/web-touch/">
+  <time datetime="2015-10-26T11:02:57.000Z">
+    2015-10-26
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2015/10/26/web-touch/">web端touch开发手记</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>只是记录一下上次用到touch开发的时候遇到的一些问题。<br>一般来说，很多人开发touch事件都会调用zepto上的一些接口。不过由于本人愚钝，并不知道有这种东西。故直接调用了html5定义中的touchstart,touchend,touchmove三个事件。事实上这三个事件也十分完美的可以模拟出大部分touch事件。</p>
+<p>这一次我要实现的是一个长按事件。<br>那么原理就十分简单了。<br>首先当用户touch的时候会触发touchstart，用户离开的时候会触发touchend。我们只需要在touchstart后调用一个计时器记录，touchend结束这个计时器，就可以判断用户是否长按了，并且通过此达到我们希望的一些目的。<br>因为，我利用了setTimeout方法。</p>
+<hr>
+<p>实现是比较简单的活。<br>那么在移动端当你长按的时候，你会遇到一种常有的情况。没错，长按复制，长按默认事件等等。</p>
+<p>这个解决方法也十分简单。<br>对于IOS和大部分安卓机型，只需要在页面的CSS上添加如下两句设定即可。 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-webkit-user-select : none; </span><br><span class="line">-webkit-touch-callout:none;</span><br></pre></td></tr></table></figure>
+<p>但是这对于神奇的小米系机型还是不够的，他会忽略掉这两句限定。那么如果你的事件是冒泡获取的话就简单了。<br>你只需要在其中截取默认事件就可以了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">evt.preventDefault();</span><br></pre></td></tr></table></figure>
+<p>其实开发上还是十分简单的。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2015/10/26/web-mobile-sensor/">
   <time datetime="2015-10-26T11:02:48.000Z">
     2015-10-26
