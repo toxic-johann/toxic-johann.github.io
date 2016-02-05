@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-02-05T03:35:42.039Z</updated>
+  <updated>2016-02-05T09:19:55.482Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[thinkjs2.1上面node-crontab使用的坑和降频器]]></title>
+    <link href="http://yoursite.com/2016/02/05/sth-about-node-crontab/"/>
+    <id>http://yoursite.com/2016/02/05/sth-about-node-crontab/</id>
+    <published>2016-02-05T09:07:59.000Z</published>
+    <updated>2016-02-05T09:19:55.482Z</updated>
+    <content type="html"><![CDATA[<p>因为要做一些定时任务的功能，所以我在thinkjs上面使用了node-crontab模块。但是很快我发现了一个问题。每次自动编译，node-crontab都会将这个函数绑定一次。然后进行运行。</p>
+<p>一开始的想法是绑定一个降频器，然后让函数运行的时候，确保只在短时间内运行一次。</p>
+<p>后来发现，每次生成定时任务都会生成一个新的函数，降频器也变成了很多个。明显是不能用了。到最后才发现自己发了这个傻。</p>
+<p>于是，我直接获取到任务的id，将它缓存在global上面，如果发现他有值，则清除之。解决了这个问题。代码如下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 及时取消原有的定时任务</span><br><span class="line"><span class="keyword">if</span>(global.getTokenId)&#123;</span><br><span class="line">	crontab.cancelJob(global.getTokenId);</span><br><span class="line">&#125;</span><br><span class="line">global.getTokenId = crontab.scheduleJob(<span class="string">"0 15 * * * *"</span>,()=&gt;&#123;</span><br><span class="line">	regularGetToken()</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这个bug仅仅是记录一下。下面我们来谈谈降频器。</p>
+<p>降频器的话就是希望函数不被高频触发，在做动画的时候我们经常用到requestAnimaitonFrame这个方法就是用于解决这个问题。无论什么任务，都等到下次重绘的时候触发，明显降低了很多频率。</p>
+<p>然而在后台编写的代码的时候，就没有这个函数鸟。那么也很简单，我们用setTimeout做一个。</p>
+<p>这里我们先看一下网上流传的比较广的deboucer代码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">_.debounce = <span class="keyword">function</span>(func, <span class="built_in">wait</span>, immediate) &#123;</span><br><span class="line">	var timeout;</span><br><span class="line">	<span class="built_in">return</span> <span class="function"><span class="title">function</span></span>() &#123;</span><br><span class="line">		var context = this, args = arguments;</span><br><span class="line">		var later = <span class="function"><span class="title">function</span></span>() &#123;</span><br><span class="line">			timeout = null;</span><br><span class="line">			<span class="keyword">if</span> (!immediate) func.apply(context, args);</span><br><span class="line">		&#125;;</span><br><span class="line">		var callNow = immediate &amp;&amp; !timeout;</span><br><span class="line">		clearTimeout(timeout);</span><br><span class="line">		timeout = <span class="built_in">set</span>Timeout(later, <span class="built_in">wait</span>);</span><br><span class="line">		<span class="keyword">if</span> (callNow) func.apply(context, args);</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这段代码的确可以降低频率，但是如果你一直不断调用目标函数，那么因为这个降频的原因，会永远不可能触发。因为我们会不断把setTimeout给清除掉。</p>
+<p>我的想法是，比如在间隔时间内，有N次函数调用，而只有第一个函数会被调用成功，后面的调用我都将他们废弃。间隔结束后，再一次的函数调用被触发。</p>
+<p>代码如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">preventMultyCalls = <span class="keyword">function</span> (func,duration) &#123;</span><br><span class="line">		<span class="built_in">let</span> timeout;</span><br><span class="line">		<span class="built_in">return</span> <span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">			<span class="keyword">if</span>(!timeout)&#123;</span><br><span class="line">				func.apply(this,arguments);</span><br><span class="line">				timeout = <span class="built_in">set</span>Timeout(()=&gt;&#123;</span><br><span class="line">					timeout = null;</span><br><span class="line">				&#125;,duration);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这就达到了我的效果了。觉得做这些小的工具函数还是挺好玩的。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>因为要做一些定时任务的功能，所以我在thinkjs上面使用了node-crontab模块。但是很快我发现了一个问题。每次自动编译，node-crontab都会将这个函数绑定一次。然后进行运行。</p>
+<p>一开始的想法是绑定一个降频器，然后让函数运行的时候，确保只在短时间]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[最近的一些技巧记录]]></title>
