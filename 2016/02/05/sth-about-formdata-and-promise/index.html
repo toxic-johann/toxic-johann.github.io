@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  
+  <title>最近的一些技巧记录 | Bit Of Toxic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+    <meta name="author" content="to-xic">
+  
+  
+    <meta name="description" content="这篇文章主要是记录一下自己一些常忘掉的点，和最近的一些总结。
+formDataformData是一个新增的html5方法，而且在中国的支持度还算可以。大概有83%。不过你要支持IE10之前的产品，那就另当别论了。
+其实这个方法我以前已经多次用过了，但是老是会因为时间隔得长所以忘掉了，这里记录一下，让自己记得比较清楚一点。
+formData的简洁之处在于他可以根据form随时生成可以上传的formD">
+  
+  <meta name="description" content="这篇文章主要是记录一下自己一些常忘掉的点，和最近的一些总结。
+formDataformData是一个新增的html5方法，而且在中国的支持度还算可以。大概有83%。不过你要支持IE10之前的产品，那就另当别论了。
+其实这个方法我以前已经多次用过了，但是老是会因为时间隔得长所以忘掉了，这里记录一下，让自己记得比较清楚一点。
+formData的简洁之处在于他可以根据form随时生成可以上传的formD">
+<meta property="og:type" content="article">
+<meta property="og:title" content="最近的一些技巧记录">
+<meta property="og:url" content="http://yoursite.com/2016/02/05/sth-about-formdata-and-promise/index.html">
+<meta property="og:site_name" content="Bit Of Toxic">
+<meta property="og:description" content="这篇文章主要是记录一下自己一些常忘掉的点，和最近的一些总结。
+formDataformData是一个新增的html5方法，而且在中国的支持度还算可以。大概有83%。不过你要支持IE10之前的产品，那就另当别论了。
+其实这个方法我以前已经多次用过了，但是老是会因为时间隔得长所以忘掉了，这里记录一下，让自己记得比较清楚一点。
+formData的简洁之处在于他可以根据form随时生成可以上传的formD">
+<meta property="og:updated_time" content="2016-02-05T03:35:42.039Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="最近的一些技巧记录">
+<meta name="twitter:description" content="这篇文章主要是记录一下自己一些常忘掉的点，和最近的一些总结。
+formDataformData是一个新增的html5方法，而且在中国的支持度还算可以。大概有83%。不过你要支持IE10之前的产品，那就另当别论了。
+其实这个方法我以前已经多次用过了，但是老是会因为时间隔得长所以忘掉了，这里记录一下，让自己记得比较清楚一点。
+formData的简洁之处在于他可以根据form随时生成可以上传的formD">
+  
+    <link rel="alternate" href="/atom.xml" title="Bit Of Toxic" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  
+<script type="text/javascript">
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9d865e87f3199160311b03cd56126f47";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+
+</script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <header id="header">
+  <div class="title">
+    <h1><a href="/">Bit Of Toxic</a></h1>
+    <p><a href="/">李猜猜，被折磨得死去活来的菜鸟</a></p>
+  </div>
+  <nav class="nav">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+    <div class="clearfix"></div>
+  </nav>
+  <div class="clearfix"></div>
+</header>
+    <div class="content"><article class="post">
+  <header>
+    
+      <div class="icon"></div>
+      <a href="/2016/02/05/sth-about-formdata-and-promise/">
+  <time datetime="2016-02-05T03:09:36.000Z">
+    2016-02-05
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title">最近的一些技巧记录</h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>这篇文章主要是记录一下自己一些常忘掉的点，和最近的一些总结。</p>
+<h1 id="formData">formData</h1><p>formData是一个新增的html5方法，而且在中国的支持度还算可以。大概有83%。不过你要支持IE10之前的产品，那就另当别论了。</p>
+<p>其实这个方法我以前已经多次用过了，但是老是会因为时间隔得长所以忘掉了，这里记录一下，让自己记得比较清楚一点。</p>
+<p>formData的简洁之处在于他可以根据form随时生成可以上传的formData文件，而且也可以自己去append之类的，一般情况下，也不大用得着。但是如果涉及文件上传的话，还是十分方便的。</p>
+<p>简单举个栗子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;form class=<span class="string">"upload-terms-form"</span>&gt;</span><br><span class="line">	&lt;input <span class="built_in">type</span>=<span class="string">"file"</span> name=<span class="string">"terms"</span> value=<span class="string">"文件选择"</span>&gt;</span><br><span class="line">	&lt;input <span class="built_in">type</span>=<span class="string">"submit"</span> value=<span class="string">"上传"</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+<p>有文件上传表单如上，如果我们不想让页面刷新而直接上传文件呢。那么我们一般会监听submit，然后用ajax的方法进行上传，并且在末尾取消默认的事件。</p>
+<p>所以难点在于怎么去ajax一个文件，以往jQuery有许多插件做这个事，但是现在有HTML5的formData属性，做起来还是十分方便。直接用form生成一个formData即可上传。</p>
+<p>代码如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// 绑定form，并且监听submit事件</span><br><span class="line">$(document).delegate(<span class="string">"form.upload-terms-form"</span>,<span class="string">"submit"</span>,<span class="keyword">function</span>(evt)&#123;</span><br><span class="line">	$.ajax( &#123;</span><br><span class="line">		url: <span class="string">'some url you want to go'</span>,</span><br><span class="line">	   <span class="built_in">type</span>: <span class="string">'POST'</span>,</span><br><span class="line">	   data: new FormData( this ),//从form上面新建一个formData</span><br><span class="line">	   processData: <span class="literal">false</span>,</span><br><span class="line">	   contentType: <span class="literal">false</span>,</span><br><span class="line">	   success:(response)=&gt;&#123;</span><br><span class="line">	   		// 成功的时候的响应</span><br><span class="line">	   &#125;,</span><br><span class="line">	   beforeSend:()=&gt;&#123;</span><br><span class="line">	    	// 上传前要做些什么，比如可以增加一个上传状态或者进度条</span><br><span class="line">	   &#125;,</span><br><span class="line">	   error:()=&gt;&#123;</span><br><span class="line">	   		// 上传失败的响应</span><br><span class="line">	   &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    evt.preventDefault();//禁止掉原生的submit事件</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>总而言之，这个方法还是比较常用并且比较简单地。</p>
+<h1 id="函数式编程小结——结合map和promise-all简化多个请求流程">函数式编程小结——结合map和promise.all简化多个请求流程</h1><p>这一段读起来可能有点扯，但是也是纠正我以前一个不好的习惯。</p>
+<p>不知道你有没有这么一种场景，就是你多个数据，他们要调用异步的方法进行处理，处理完毕后你需要返回出去。那么这个我以前是怎么写的呢？</p>
+<p>还是比较简单地，我们只需要增加一个变量进行记录就好了。请看代码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">var data = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>];</span><br><span class="line">var count = <span class="number">0</span>;</span><br><span class="line">data.forEach(<span class="keyword">function</span>(number)&#123;</span><br><span class="line">	handle(number,<span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">		// i am a callback <span class="keyword">function</span></span><br><span class="line">		count++;</span><br><span class="line">		<span class="keyword">if</span>(count == data.length)&#123;</span><br><span class="line">			console.log(<span class="string">"success"</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这种代码的问题首先是，不能知道部分失败的，因为如果你失败的也不增加这个变量，你不会返回一个成功的结果。</p>
+<p>第二个是可读性差，理解得不好，如果要增加各种监听写起来也不方便。</p>
+<p>然而现在我们有promise函数了。promise.all可以很好地处理这种并发异步的问题，让你知道成功还是部分失败。失败的点在哪里。所以我们可以生成一个函数集让他去进行处理。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> data = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>];</span><br><span class="line">//生成一个处理列表</span><br><span class="line"><span class="built_in">let</span> tasks = data.map(number=&gt;&#123;</span><br><span class="line">	<span class="built_in">return</span> new Promise(<span class="keyword">function</span>(resolve,reject)&#123;</span><br><span class="line">		//可以分别进行成功和失败返回的处理</span><br><span class="line">		promiseHandle(number).then(success=&gt;&#123;</span><br><span class="line">			resolve();</span><br><span class="line">		&#125;,fail=&gt;&#123;</span><br><span class="line">			reject(number);</span><br><span class="line">		&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br><span class="line">Promise.all(tasks).then(success=&gt;&#123;</span><br><span class="line">	console.log(<span class="string">"success"</span>);</span><br><span class="line">	//全部成功后的处理</span><br><span class="line">&#125;,fail=&gt;&#123;</span><br><span class="line">	console.log(<span class="string">"fail at "</span>,fail);</span><br><span class="line">	//可以知晓哪个部分是失败的</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>用这个小技巧，可以令我们的代码更加可读和易于处理。</p>
+<p>然后为什么说是函数式编程呢。</p>
+<p>因为这里我们将处理过程抽取了出来，然后返回一个处理的东西用于执行。</p>
+<p>我觉得比以前过程式好，也便于修改。啊哈哈哈。</p>
+
+    
+  </div>
+  <footer>
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">评论</h1>
+  <div class="ds-thread" data-title="最近的一些技巧记录">
+  </div>
+</section>
+</div>
+  </div>
+  <footer id="footer"><div class="copyright">
+  
+  &copy; 2016 <a href="/">to-xic</a>
+  
+</div>
+<div class="theme-copyright">
+  Theme by <a href="https://github.com/orderedlist" target="_blank">orderedlist</a>
+   | 
+  Redesign by <a href="http://heroicyang.com/" target="_blank">Heroic Yang</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script src="/js/scale.fix.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = { short_name: 'toxicjohann' };
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+  (function($){
+    $('.fancybox').fancybox();
+  })(jQuery);
+</script>
+
+</body>
+</html>

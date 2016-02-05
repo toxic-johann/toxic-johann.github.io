@@ -76,6 +76,62 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2016/02/05/sth-about-formdata-and-promise/">
+  <time datetime="2016-02-05T03:09:36.000Z">
+    2016-02-05
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/02/05/sth-about-formdata-and-promise/">最近的一些技巧记录</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>这篇文章主要是记录一下自己一些常忘掉的点，和最近的一些总结。</p>
+<h1 id="formData">formData</h1><p>formData是一个新增的html5方法，而且在中国的支持度还算可以。大概有83%。不过你要支持IE10之前的产品，那就另当别论了。</p>
+<p>其实这个方法我以前已经多次用过了，但是老是会因为时间隔得长所以忘掉了，这里记录一下，让自己记得比较清楚一点。</p>
+<p>formData的简洁之处在于他可以根据form随时生成可以上传的formData文件，而且也可以自己去append之类的，一般情况下，也不大用得着。但是如果涉及文件上传的话，还是十分方便的。</p>
+<p>简单举个栗子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;form class=<span class="string">"upload-terms-form"</span>&gt;</span><br><span class="line">	&lt;input <span class="built_in">type</span>=<span class="string">"file"</span> name=<span class="string">"terms"</span> value=<span class="string">"文件选择"</span>&gt;</span><br><span class="line">	&lt;input <span class="built_in">type</span>=<span class="string">"submit"</span> value=<span class="string">"上传"</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+<p>有文件上传表单如上，如果我们不想让页面刷新而直接上传文件呢。那么我们一般会监听submit，然后用ajax的方法进行上传，并且在末尾取消默认的事件。</p>
+<p>所以难点在于怎么去ajax一个文件，以往jQuery有许多插件做这个事，但是现在有HTML5的formData属性，做起来还是十分方便。直接用form生成一个formData即可上传。</p>
+<p>代码如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// 绑定form，并且监听submit事件</span><br><span class="line">$(document).delegate(<span class="string">"form.upload-terms-form"</span>,<span class="string">"submit"</span>,<span class="keyword">function</span>(evt)&#123;</span><br><span class="line">	$.ajax( &#123;</span><br><span class="line">		url: <span class="string">'some url you want to go'</span>,</span><br><span class="line">	   <span class="built_in">type</span>: <span class="string">'POST'</span>,</span><br><span class="line">	   data: new FormData( this ),//从form上面新建一个formData</span><br><span class="line">	   processData: <span class="literal">false</span>,</span><br><span class="line">	   contentType: <span class="literal">false</span>,</span><br><span class="line">	   success:(response)=&gt;&#123;</span><br><span class="line">	   		// 成功的时候的响应</span><br><span class="line">	   &#125;,</span><br><span class="line">	   beforeSend:()=&gt;&#123;</span><br><span class="line">	    	// 上传前要做些什么，比如可以增加一个上传状态或者进度条</span><br><span class="line">	   &#125;,</span><br><span class="line">	   error:()=&gt;&#123;</span><br><span class="line">	   		// 上传失败的响应</span><br><span class="line">	   &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    evt.preventDefault();//禁止掉原生的submit事件</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>总而言之，这个方法还是比较常用并且比较简单地。</p>
+<h1 id="函数式编程小结——结合map和promise-all简化多个请求流程">函数式编程小结——结合map和promise.all简化多个请求流程</h1><p>这一段读起来可能有点扯，但是也是纠正我以前一个不好的习惯。</p>
+<p>不知道你有没有这么一种场景，就是你多个数据，他们要调用异步的方法进行处理，处理完毕后你需要返回出去。那么这个我以前是怎么写的呢？</p>
+<p>还是比较简单地，我们只需要增加一个变量进行记录就好了。请看代码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">var data = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>];</span><br><span class="line">var count = <span class="number">0</span>;</span><br><span class="line">data.forEach(<span class="keyword">function</span>(number)&#123;</span><br><span class="line">	handle(number,<span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">		// i am a callback <span class="keyword">function</span></span><br><span class="line">		count++;</span><br><span class="line">		<span class="keyword">if</span>(count == data.length)&#123;</span><br><span class="line">			console.log(<span class="string">"success"</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这种代码的问题首先是，不能知道部分失败的，因为如果你失败的也不增加这个变量，你不会返回一个成功的结果。</p>
+<p>第二个是可读性差，理解得不好，如果要增加各种监听写起来也不方便。</p>
+<p>然而现在我们有promise函数了。promise.all可以很好地处理这种并发异步的问题，让你知道成功还是部分失败。失败的点在哪里。所以我们可以生成一个函数集让他去进行处理。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> data = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>];</span><br><span class="line">//生成一个处理列表</span><br><span class="line"><span class="built_in">let</span> tasks = data.map(number=&gt;&#123;</span><br><span class="line">	<span class="built_in">return</span> new Promise(<span class="keyword">function</span>(resolve,reject)&#123;</span><br><span class="line">		//可以分别进行成功和失败返回的处理</span><br><span class="line">		promiseHandle(number).then(success=&gt;&#123;</span><br><span class="line">			resolve();</span><br><span class="line">		&#125;,fail=&gt;&#123;</span><br><span class="line">			reject(number);</span><br><span class="line">		&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br><span class="line">Promise.all(tasks).then(success=&gt;&#123;</span><br><span class="line">	console.log(<span class="string">"success"</span>);</span><br><span class="line">	//全部成功后的处理</span><br><span class="line">&#125;,fail=&gt;&#123;</span><br><span class="line">	console.log(<span class="string">"fail at "</span>,fail);</span><br><span class="line">	//可以知晓哪个部分是失败的</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>用这个小技巧，可以令我们的代码更加可读和易于处理。</p>
+<p>然后为什么说是函数式编程呢。</p>
+<p>因为这里我们将处理过程抽取了出来，然后返回一个处理的东西用于执行。</p>
+<p>我觉得比以前过程式好，也便于修改。啊哈哈哈。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2016/01/23/function-program-exam-one/">
   <time datetime="2016-01-23T13:42:50.000Z">
     2016-01-23
@@ -704,56 +760,6 @@ var _hmt = _hmt || [];
 </ul>
 <p>thinkjs中的<a href="https://thinkjs.org/zh-CN/doc/2.0/adapter_websocket.html" target="_blank" rel="external">websocket</a>已经包装好，十分好用。欢迎大家尝试。反正我用了十分好玩。</p>
 <p>现在这个服务我已经开始提供了，大家可以<a href="http://toxicjohann.com:8360/home/screenshot" target="_blank" rel="external">点击这里</a>进行试用。当然还有很多可以改进的地方。</p>
-
-    
-  </div>
-  <footer class="end-sep">
-    
-      
-      
-    
-    <div class="clearfix"></div>
-  </footer>
-</article>
-
-
-  
-    <article class="post">
-  <header>
-    
-      <div class="icon"></div>
-      <a href="/2015/10/30/panda/">
-  <time datetime="2015-10-30T07:08:04.000Z">
-    2015-10-30
-  </time>
-</a>
-    
-    
-  
-    <h1 class="title"><a href="/2015/10/30/panda/">业务线第一周感悟</a></h1>
-  
-
-  </header>
-  
-  <div class="entry">
-    
-      <p>这周被借调出去了。去了一个挺忙碌的部门。说忙碌，其实也不算十分忙碌，主要是时间非常赶。但是，算是真正的第一次上业务线工作。感触挺多。</p>
-<h1 id="gulp">gulp</h1><p>gulp已经成为了前端开发的必备工具了。原理上还是不算困难的。但是在第一次完成任务，我就被gulp坑了一回。为何呢？原来，在业务上提交源码后，要进行以gulp build，上线或者提测前，要进行gulp deploy，否则就会出现线上和线下编译代码不一致的情况。在不熟悉环境的情况下，没有进行gulp deploy。发现线上的bug无论如何也无法线下复现。为此浪费了不少时间。</p>
-<p>后期，必须要弄清楚gulp和业务线上的全套流程。</p>
-<h1 id="photoshop&amp;&amp;1px">photoshop&amp;&amp;1px</h1><p>写这一段是悲痛的。作为一个新手。拿到UI设计图，很多时候就是简单的制作出来就好。然而，这样有很多细节的地方都没做好。</p>
-<p>在给领导说了以后，我采用了标尺量取的方法。但是这种方法还是有偏差，没法解决问题。因为很多时候你的线会是歪的。</p>
-<p>后期，我发现领导采用了矩形的量取方法，这种方法避免了线取歪的偏差。并且利用这种方法也可以量取字体大小。让我在实现设计图片上准确度大大提升。</p>
-<p><strong>完整地，‘不分青红皂白地’，实现设计的设计，对开发在某种程度上来说是保护。</strong>这样子，当测试吐槽你的UI偏差问题时候，锅就由设计背了。虽然很累，走了很多弯路。但是很感谢我的领导指教。</p>
-<p>那天在这个问题上花了超级超级多的时间，比我后期实现功能还要多。但是我相信，有了这次惨痛的经历，以后会有所提升。</p>
-<h1 id="promise&amp;&amp;handlebars">promise&amp;&amp;handlebars</h1><p>这应该是这周接触的唯一一个的技术难点。说难，其实也不难。因为我在nodejs上有所了解过这种思维，而且，有他们的类似代码供我学习。<br>基于服务器需求，将所有PHP页面转为js加载hbs方式。</p>
-<p>前端渲染与服务端渲染其实相比速度相差多少，这个我真不清楚。但是前端渲染能够一定程度上降低服务端的压力。服务端是以这个要求来要求我们进行前端渲染开发的。讨论可以看看这篇<a href="http://www.cnblogs.com/yexiaochai/p/4463420.html" target="_blank" rel="external">文章</a>。</p>
-<p>Ok，我们只是谈谈做法。其实对于我们的改变还是比较简单的，就是利用promise。将一个页面版块逐个加载，最后添加各种事件效果即可。</p>
-<p>promise的实现方式还是有很多的。比如这次因为我们要适配IE8，我们就采用了jQuery的deferred。详细解释可以参考一下<a href="http://www.ruanyifeng.com/blog/2011/08/a_detailed_explanation_of_jquery_deferred_object.html" target="_blank" rel="external">阮老师的博客</a>，简单易懂。</p>
-<p>而关于使用hbs模板。网上有个<a href="https://cnodejs.org/topic/50e70edfa7e6c6171a1d70fa" target="_blank" rel="external">讨论</a>，老实话，这种效率的问题我并不是特别的关心，主要是方便即可。一般来说，一个模板，只要能够传参，有逻辑判断、循环等功能，我觉得就算基本达标了。hbs都有，虽然他的逻辑判断不算十分方便，只能有true，false判断。不过我们在js处理好再传进去还是十分方便的。</p>
-<p>最后在实现了页面静态化后，大部分的信息都是通过向后端异步拉取的方式。那么就会存在什么都拉不到的状况，例如我这里有一个接口，就会有50%的几率502。因此，必须要增加容错性。设计出合理的假页面。以减少用户的觉知。</p>
-<h1 id="功能彻查">功能彻查</h1><p>这次给测试提了一个bug，有一个接口没有打开。这个原因归根到底还是要怪自己。因为自己的粗心。</p>
-<p>其实在往常的开发过程中，我会按照需求，把要做的功能点列一遍，那样以后就不容易漏掉。但是这次接触的是别人的代码，并且是改动为主，所以就没有经历此过程。但是个人认为这个过程还是十分必须的。这样子才能在开发过程中不会出现重大遗漏，在自测过程中就排除掉一些主功能的bug。</p>
-<h1 id="thinkjs">thinkjs</h1><p>最后推一下咱们的<a href="http://thinkjs.org/" target="_blank" rel="external">thinkjs2.0</a>。真是棒棒哒！！！</p>
 
     
   </div>
