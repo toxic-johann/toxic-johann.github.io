@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-02-07T08:34:54.433Z</updated>
+  <updated>2016-02-07T08:39:10.009Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2016/02/07/talk-about-three-door/"/>
     <id>http://yoursite.com/2016/02/07/talk-about-three-door/</id>
     <published>2016-02-07T07:30:22.000Z</published>
-    <updated>2016-02-07T08:34:54.433Z</updated>
+    <updated>2016-02-07T08:39:10.009Z</updated>
     <content type="html"><![CDATA[<p>昨天和同学外出叙旧，喝得比较醉。然后看到了一个帖子说到三门问题。</p>
 <p>三门问题是一个挺有趣的问题，其实我昨天已经说了一些关键点，不过今天还是来这里进行详细的讨论。</p>
 <p>我的问题描述摘自<a href="http://baike.baidu.com/view/68669.htm" target="_blank" rel="external">百度百科</a></p>
@@ -39,12 +39,11 @@
 <p>为什么会产生这种奇怪的变化呢？因为概率是依据实际条件得出的，而此时一号门和二号门之间选择的条件已经明显改变了。</p>
 <p>就这样而已。。。</p>
 <p>如果这样子，我们也不能理解的话，我们只需要作一个简单的穷举.</p>
+<p>穷举就是要了解到出现这种情况的时候你有多少选择。</p>
 <p>标记三个门分别为d1，d2，d3，三个物件为c0,g1,g2则对应列表如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">n d1 d2 d3</span><br><span class="line">----------</span><br><span class="line"><span class="number">1</span> c0 g1 g2</span><br><span class="line"><span class="number">2</span> c0 g2 g1</span><br><span class="line"><span class="number">3</span> g1 c0 g2</span><br><span class="line"><span class="number">4</span> g2 c0 g1</span><br><span class="line"><span class="number">5</span> g1 g2 c0</span><br><span class="line"><span class="number">6</span> g2 g1 c0</span><br></pre></td></tr></table></figure>
 <p>针对这六种可能性，都是1/6。</p>
-<p>假设不换门，则只有1，2两种可能性可以获得c0–汽车。</p>
-<p>若假设换门，我们具体分析。</p>
-<p>若你选择d1,而主持人打开的门是d3的几率分别如下:</p>
+<p>现在我们模拟问题的现场，若你选择d1,而主持人打开的门是d3的几率分别如下:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">n d1 d2 d3 openD3</span><br><span class="line">-----------------</span><br><span class="line"><span class="number">1</span> c0 g1 g2  <span class="number">1</span>/<span class="number">2</span></span><br><span class="line"><span class="number">2</span> c0 g2 g1  <span class="number">1</span>/<span class="number">2</span></span><br><span class="line"><span class="number">3</span> g1 c0 g2   <span class="number">1</span></span><br><span class="line"><span class="number">4</span> g2 c0 g1   <span class="number">1</span></span><br><span class="line"><span class="number">5</span> g1 g2 c0   <span class="number">0</span></span><br><span class="line"><span class="number">6</span> g2 g1 c0   <span class="number">0</span></span><br></pre></td></tr></table></figure>
 <p>理解这一步还是挺关键的。</p>
 <p>在1,2情况下，因为主持人无论打开二号门，三号门，都能是羊，所以主持人选择三号门的几率是1/2。</p>
