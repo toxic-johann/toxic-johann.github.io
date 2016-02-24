@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-02-07T08:39:10.009Z</updated>
+  <updated>2016-02-24T03:59:24.773Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[新形状组件和最近的一些笔记]]></title>
+    <link href="http://yoursite.com/2016/02/24/new-shape-and-webpack/"/>
+    <id>http://yoursite.com/2016/02/24/new-shape-and-webpack/</id>
+    <published>2016-02-24T03:46:31.000Z</published>
+    <updated>2016-02-24T03:59:24.773Z</updated>
+    <content type="html"><![CDATA[<p>如果你还记得我之前做的一个关于svg插件处理的话，你应该记得我是直接在代码里把颜色元素去掉，然后通过css打上各种颜色。</p>
+<p>然后随着业务的增加，我们需要支持多种颜色的svg。</p>
+<p>那么这种情况我们当然就不能简单的颜色处理了。于是很简单的我用attribute判断不同的颜色，然后为之打上不同的颜色。</p>
+<p>那么其实主要问题就是如何区分咯。我采用了一个很简单的方法。因为我在后台需要转换数据，为了偷懒，我直接在后台用cheerio处理文件。当然在前端也能达成这种效果。只需要用filereaded来读取上传的文件就可以了。</p>
+<p>处理的流程如下，</p>
+<ol>
+<li>遍历所有可以加上颜色的元素，提取颜色，打上颜色标签。</li>
+<li>将提取的颜色除重</li>
+<li>根据颜色标签替换为自己需要的标签，根据这些标签进行颜色处理。</li>
+</ol>
+<p>所以难度不大。不过在novajs上面template-repeat绑定元素监听不怎么可行，所以要自己加个代理监听。总体来说还是达成了效果。</p>
+<p>另外最近在自己的一个项目里尝试使用了webpack，发现babel-loader没有生效，查明后发现是babel6采用了插件处理。配置上必须改成如下，添加preset</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">module: &#123;</span><br><span class="line">        loaders: [</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="built_in">test</span>: /\.js$/,</span><br><span class="line">              exclude: /(node_modules|bower_components)/,</span><br><span class="line">              loader: <span class="string">'babel'</span>,</span><br><span class="line">              query: &#123;</span><br><span class="line">                    presets: [<span class="string">'es2015'</span>]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br></pre></td></tr></table></figure>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>如果你还记得我之前做的一个关于svg插件处理的话，你应该记得我是直接在代码里把颜色元素去掉，然后通过css打上各种颜色。</p>
+<p>然后随着业务的增加，我们需要支持多种颜色的svg。</p>
+<p>那么这种情况我们当然就不能简单的颜色处理了。于是很简单的我用attrib]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[三门问题]]></title>
