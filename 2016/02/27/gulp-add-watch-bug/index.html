@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  
+  <title>gulp-watch不能监听添加文件 | Toxic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+    <meta name="author" content="to-xic">
+  
+  
+    <meta name="description" content="这篇文章主要记录下今天做的时候遇到的几个问题。
+第一个问题当然是gulp-watch这个坑。其实这个坑有了很久，大家也很想gulp可以修复这个东西，但是gulp上面已经声明了，这个不是他们的bug。虽然尽力在修，但是不知道什么时候弄得好。
+网上也有另外的解决办法，或者直接调用gaze，但是我试了试貌似不行。
+所以最后我放弃了，毕竟gulp是拿来监听文件的，不是监听文件夹的。所以我把我的需求变了变，">
+  
+  <meta name="description" content="这篇文章主要记录下今天做的时候遇到的几个问题。
+第一个问题当然是gulp-watch这个坑。其实这个坑有了很久，大家也很想gulp可以修复这个东西，但是gulp上面已经声明了，这个不是他们的bug。虽然尽力在修，但是不知道什么时候弄得好。
+网上也有另外的解决办法，或者直接调用gaze，但是我试了试貌似不行。
+所以最后我放弃了，毕竟gulp是拿来监听文件的，不是监听文件夹的。所以我把我的需求变了变，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gulp-watch不能监听添加文件">
+<meta property="og:url" content="http://yoursite.com/2016/02/27/gulp-add-watch-bug/index.html">
+<meta property="og:site_name" content="Toxic">
+<meta property="og:description" content="这篇文章主要记录下今天做的时候遇到的几个问题。
+第一个问题当然是gulp-watch这个坑。其实这个坑有了很久，大家也很想gulp可以修复这个东西，但是gulp上面已经声明了，这个不是他们的bug。虽然尽力在修，但是不知道什么时候弄得好。
+网上也有另外的解决办法，或者直接调用gaze，但是我试了试貌似不行。
+所以最后我放弃了，毕竟gulp是拿来监听文件的，不是监听文件夹的。所以我把我的需求变了变，">
+<meta property="og:updated_time" content="2016-02-27T13:12:29.326Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="gulp-watch不能监听添加文件">
+<meta name="twitter:description" content="这篇文章主要记录下今天做的时候遇到的几个问题。
+第一个问题当然是gulp-watch这个坑。其实这个坑有了很久，大家也很想gulp可以修复这个东西，但是gulp上面已经声明了，这个不是他们的bug。虽然尽力在修，但是不知道什么时候弄得好。
+网上也有另外的解决办法，或者直接调用gaze，但是我试了试貌似不行。
+所以最后我放弃了，毕竟gulp是拿来监听文件的，不是监听文件夹的。所以我把我的需求变了变，">
+  
+    <link rel="alternate" href="/atom.xml" title="Toxic" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  
+<script type="text/javascript">
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9d865e87f3199160311b03cd56126f47";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+
+</script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <header id="header">
+  <div class="title">
+    <h1><a href="/">Toxic</a></h1>
+    <p><a href="/">李猜猜，被折磨得死去活来的菜鸟</a></p>
+  </div>
+  <nav class="nav">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+    <div class="clearfix"></div>
+  </nav>
+  <div class="clearfix"></div>
+</header>
+    <div class="content"><article class="post">
+  <header>
+    
+      <div class="icon"></div>
+      <a href="/2016/02/27/gulp-add-watch-bug/">
+  <time datetime="2016-02-27T12:59:20.000Z">
+    2016-02-27
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title">gulp-watch不能监听添加文件</h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>这篇文章主要记录下今天做的时候遇到的几个问题。</p>
+<p>第一个问题当然是gulp-watch这个坑。其实这个坑有了很久，大家也很想gulp可以修复这个东西，但是gulp上面已经声明了，<a href="https://github.com/gulpjs/gulp/issues/651" target="_blank" rel="external">这个不是他们的bug</a>。虽然尽力在修，但是不知道什么时候弄得好。</p>
+<p>网上也有<a href="http://stackoverflow.com/questions/22391527/gulps-gulp-watch-not-triggered-for-new-or-deleted-files" target="_blank" rel="external">另外的解决办法</a>，或者直接调用gaze，但是我试了试貌似不行。</p>
+<p>所以最后我放弃了，毕竟gulp是拿来监听文件的，不是监听文件夹的。所以我把我的需求变了变，让服务器调用gulp。</p>
+<p>这个其实还是很简单的，调用一下exec就好了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">exec(<span class="string">'cd ./myblog;gulp markdown;'</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> self.success()</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>第二个问题是利用生成路径问题。</p>
+<p>众所周知，fs.write之类的必须基于已有路径，但是有的时候不一定有，所以我们可以写个函数做个判断。</p>
+<p>以前我会这么写</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建所有目录</span></span><br><span class="line"><span class="keyword">var</span> mkdirs = <span class="built_in">module</span>.exports.mkdirs = <span class="function"><span class="keyword">function</span>(<span class="params">dirpath, mode, callback</span>) </span>&#123;</span><br><span class="line">    fs.exists(dirpath, <span class="function"><span class="keyword">function</span>(<span class="params">exists</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(exists) &#123;</span><br><span class="line">           callback(dirpath);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//尝试创建父目录，然后再创建当前目录</span></span><br><span class="line">            mkdirs(path.dirname(dirpath), mode, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                 fs.mkdir(dirpath, mode, callback);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>不过现在我想写成promise可以用，所以我这么写</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">mkdir:<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">dirpath, mode, callback</span>)</span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve,reject</span>)</span>&#123;</span><br><span class="line">				<span class="keyword">let</span> acallback = (<span class="function"><span class="keyword">function</span>(<span class="params">dirpath</span>)</span>&#123;</span><br><span class="line">					<span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">						<span class="keyword">if</span>(think.isFunction(callback))&#123;</span><br><span class="line">							callback(dirpath);</span><br><span class="line">						&#125;</span><br><span class="line">						resolve(dirpath);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;)(dirpath);</span><br><span class="line">				fs.exists(dirpath, <span class="function"><span class="keyword">function</span>(<span class="params">exists</span>) </span>&#123;</span><br><span class="line">			        <span class="keyword">if</span>(exists) &#123;</span><br><span class="line">			            acallback(dirpath);</span><br><span class="line">			        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			            self.mkdir(path.dirname(dirpath), mode, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">			                fs.mkdir(dirpath, mode, acallback);</span><br><span class="line">			            &#125;);</span><br><span class="line">			        &#125;</span><br><span class="line">			    &#125;);</span><br><span class="line">			&#125;);</span><br><span class="line">		&#125;.apply(global.utils,<span class="built_in">arguments</span>)</span><br><span class="line">	&#125;,</span><br></pre></td></tr></table></figure>
+<p>我在里面创造了promise并且在callback添加了resolve，从而达到目的。</p>
+<p>其实还是有其它方式的，例如你在那个传入的callbak里面绑定一个resolve之类的。不过我主要是懒得做，以后想这么用而已。</p>
+
+    
+  </div>
+  <footer>
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">评论</h1>
+  <div class="ds-thread" data-title="gulp-watch不能监听添加文件">
+  </div>
+</section>
+</div>
+  </div>
+  <footer id="footer"><div class="copyright">
+  
+  &copy; 2016 <a href="/">to-xic</a>
+  
+</div>
+<div class="theme-copyright">
+  Theme by <a href="https://github.com/orderedlist" target="_blank">orderedlist</a>
+   | 
+  Redesign by <a href="http://heroicyang.com/" target="_blank">Heroic Yang</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script src="/js/scale.fix.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = { short_name: 'toxicjohann' };
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+  (function($){
+    $('.fancybox').fancybox();
+  })(jQuery);
+</script>
+
+</body>
+</html>

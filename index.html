@@ -76,6 +76,53 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2016/02/27/gulp-add-watch-bug/">
+  <time datetime="2016-02-27T12:59:20.000Z">
+    2016-02-27
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/02/27/gulp-add-watch-bug/">gulp-watch不能监听添加文件</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>这篇文章主要记录下今天做的时候遇到的几个问题。</p>
+<p>第一个问题当然是gulp-watch这个坑。其实这个坑有了很久，大家也很想gulp可以修复这个东西，但是gulp上面已经声明了，<a href="https://github.com/gulpjs/gulp/issues/651" target="_blank" rel="external">这个不是他们的bug</a>。虽然尽力在修，但是不知道什么时候弄得好。</p>
+<p>网上也有<a href="http://stackoverflow.com/questions/22391527/gulps-gulp-watch-not-triggered-for-new-or-deleted-files" target="_blank" rel="external">另外的解决办法</a>，或者直接调用gaze，但是我试了试貌似不行。</p>
+<p>所以最后我放弃了，毕竟gulp是拿来监听文件的，不是监听文件夹的。所以我把我的需求变了变，让服务器调用gulp。</p>
+<p>这个其实还是很简单的，调用一下exec就好了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">exec(<span class="string">'cd ./myblog;gulp markdown;'</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> self.success()</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>第二个问题是利用生成路径问题。</p>
+<p>众所周知，fs.write之类的必须基于已有路径，但是有的时候不一定有，所以我们可以写个函数做个判断。</p>
+<p>以前我会这么写</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建所有目录</span></span><br><span class="line"><span class="keyword">var</span> mkdirs = <span class="built_in">module</span>.exports.mkdirs = <span class="function"><span class="keyword">function</span>(<span class="params">dirpath, mode, callback</span>) </span>&#123;</span><br><span class="line">    fs.exists(dirpath, <span class="function"><span class="keyword">function</span>(<span class="params">exists</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(exists) &#123;</span><br><span class="line">           callback(dirpath);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//尝试创建父目录，然后再创建当前目录</span></span><br><span class="line">            mkdirs(path.dirname(dirpath), mode, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                 fs.mkdir(dirpath, mode, callback);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>不过现在我想写成promise可以用，所以我这么写</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">mkdir:<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">dirpath, mode, callback</span>)</span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve,reject</span>)</span>&#123;</span><br><span class="line">				<span class="keyword">let</span> acallback = (<span class="function"><span class="keyword">function</span>(<span class="params">dirpath</span>)</span>&#123;</span><br><span class="line">					<span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">						<span class="keyword">if</span>(think.isFunction(callback))&#123;</span><br><span class="line">							callback(dirpath);</span><br><span class="line">						&#125;</span><br><span class="line">						resolve(dirpath);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;)(dirpath);</span><br><span class="line">				fs.exists(dirpath, <span class="function"><span class="keyword">function</span>(<span class="params">exists</span>) </span>&#123;</span><br><span class="line">			        <span class="keyword">if</span>(exists) &#123;</span><br><span class="line">			            acallback(dirpath);</span><br><span class="line">			        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			            self.mkdir(path.dirname(dirpath), mode, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">			                fs.mkdir(dirpath, mode, acallback);</span><br><span class="line">			            &#125;);</span><br><span class="line">			        &#125;</span><br><span class="line">			    &#125;);</span><br><span class="line">			&#125;);</span><br><span class="line">		&#125;.apply(global.utils,<span class="built_in">arguments</span>)</span><br><span class="line">	&#125;,</span><br></pre></td></tr></table></figure>
+<p>我在里面创造了promise并且在callback添加了resolve，从而达到目的。</p>
+<p>其实还是有其它方式的，例如你在那个传入的callbak里面绑定一个resolve之类的。不过我主要是懒得做，以后想这么用而已。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2016/02/24/new-shape-and-webpack/">
   <time datetime="2016-02-24T03:46:31.000Z">
     2016-02-24
@@ -673,60 +720,6 @@ var _hmt = _hmt || [];
 <p>这样设置就好了，首先，根据你的content，给他一个最小高度。以免遇到极小的屏幕，他被收了进去，footer反而一直在页面上看不到一部分。</p>
 <p>然后利用calc属性，才用视口高度（100%）减去footer和header的高度，这个是用于屏幕太大的时候，撑开footer和header。</p>
 <p>这样子就完美解决了页面过短的时候的footer问题了。</p>
-
-    
-  </div>
-  <footer class="end-sep">
-    
-      
-      
-    
-    <div class="clearfix"></div>
-  </footer>
-</article>
-
-
-  
-    <article class="post">
-  <header>
-    
-      <div class="icon"></div>
-      <a href="/2015/12/31/goodbye-2015/">
-  <time datetime="2015-12-31T08:03:01.000Z">
-    2015-12-31
-  </time>
-</a>
-    
-    
-  
-    <h1 class="title"><a href="/2015/12/31/goodbye-2015/">再见，2015</a></h1>
-  
-
-  </header>
-  
-  <div class="entry">
-    
-      <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="http://music.163.com/outchain/player?type=2&id=3880078&auto=0&height=32"></iframe>
-
-<p>我现在一个人，坐在北京的小屋里，听着这首歌，敲下这篇文章。</p>
-<p>2015对我来说，意味着什么。回想起来，似乎发生的事情太多，有点理不清头绪。</p>
-<p>只是忽然想起，今年的生日是正月初一，也是挺特别的。</p>
-<p>听了很多吐槽，也看了很多很美好的事，2015就这么走了，猝不及防。或许中国人对于西元年，真的没有什么特别在意的，但是直到今天仔细回首。认认真真地想了一遍。或许，很多年后，我会觉得今年真的很重要吧。</p>
-<p>一月份的时候，送走了爷爷。</p>
-<p>总有人觉得国防生欠了我很多，爷爷最后一个中秋，我不在他身边。大半年没见面后，我见他的时候，他已经没有力气去睁开眼睛。我记得我在床边哭了，只是重复的说着，我会照顾好自己。爷爷走的时候，只有爸爸在他身边，似乎一家子都是这个性格，总会把不好的事收在最后。</p>
-<p>然而没想到的是，年中的时候，外公也走了。</p>
-<p>或许总有离开的时候，无论一个人如何。外公走的时候，我不敢发任何消息，没多久就要考核了，我记得是这样的。</p>
-<p>外公和爷爷丧礼上，我都写了悼词，我都没有哭。看着自己的亲人哭倒在自己怀里，忽然意识到，是该要长大了。</p>
-<p>从外公回学校的路上，我一直听着《刘哈哈与大先生》，然而我不知道为什么我哭的稀里哗啦。我最记得的场景是，外公的丧礼上，他的兄弟高喊着“着火啦，着火啦”，就好像我外公并没有离去一样。我后来想了想，我走的时候，会有这么送我的人吗？</p>
-<p>上半年，我都是沉浸在国防生的生活里。日子是简单的，我唯一要做的是好好训练，等待离开的日子。没试过这么喜欢跑步。虽然以前也跑过马拉松，但是并没有这么拼过。仍然印象深刻的是，跑中环的最后一段坡道，跑着跑着，然后看到学校。就仿佛，所有艰辛都会过去一样。</p>
-<p>现在轻轻地回首下四年。曾经恐慌过，曾经彷徨过，曾经对着电话说，我觉得我就像做贼一样。曾经放弃过，曾经执着过。到现在，还是很感激大一那个暑假的自己，毫不犹豫地奔走各个出国机构，去做自己不懂的事。从那一刻开始懂得，真正能救自己的只有自己。</p>
-<p>在漫长的等待后，来到了北京。第三次来北京了。总是对北京有种奇奇怪怪的感觉。</p>
-<p>这里可以天很蓝，这里也可以天很灰。最喜欢的是结冰的后海，再孤独也有图图陪我。我会在路上听着宋胖子的歌，好好地感受这份孤单，也好好地享受这份自由。或许会令很多人不明白，我为什么要跑那么远。去一个近乎陌生的城市。但是有的时候人生不就是这样的吗？</p>
-<p>我很喜欢现在的这份工作，尽管我还很渣。经常性地发傻，总是想不懂。但是我真的很快乐。那就够了，无论我在哪。</p>
-<p>有的时候，抬起头一看，发现满目疮痍。看着自己的家一点点崩坏，也不知道是什么感觉。</p>
-<p>我们总会因为一些人喜爱上了一座城，我们也会因为一些人离开一座城。</p>
-<p>其实就是这样而已。</p>
-<p>我过得很快乐，我也过得很不快乐。但是有的路，就是注定了要自己走下去。</p>
 
     
   </div>
