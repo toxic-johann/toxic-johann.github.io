@@ -108,15 +108,15 @@ var _hmt = _hmt || [];
 <p>这里是引自该<a href="https://segmentfault.com/a/1190000004136053" target="_blank" rel="external">博文</a></p>
 <blockquote>
 <p>首先检测一下版本:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;gulp -v</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gulp -v</span><br></pre></td></tr></table></figure>
 <p>版本如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;CLI version <span class="number">3.9</span>.<span class="number">0</span></span><br><span class="line">&gt;Local version <span class="number">3.9</span>.<span class="number">0</span></span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CLI version <span class="number">3.9</span>.<span class="number">0</span></span><br><span class="line">Local version <span class="number">3.9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
 <p>如果版本过低可以这么升级</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;npm install gulp -g &amp;&amp; npm install gulp --save-dev</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install gulp -g &amp;&amp; npm install gulp --save-dev</span><br></pre></td></tr></table></figure>
 <p>安装babel-loader</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;npm install babel-core babel-preset-es2015 --save-dev</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install babel-core babel-preset-es2015 --save-dev</span><br></pre></td></tr></table></figure>
 <p>重点主要是更换命名</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;mv gulpfile.js gulpfile.babel.js</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv gulpfile.js gulpfile.babel.js</span><br></pre></td></tr></table></figure>
 </blockquote>
 <p>OK，下面谈谈我的漏斗，漏斗的设计理念其实也还是比较简单的。</p>
 <ol>

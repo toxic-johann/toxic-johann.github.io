@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-03-01T11:20:34.366Z</updated>
+  <updated>2016-03-01T11:22:31.566Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2016/02/27/gulp-add-watch-bug/"/>
     <id>http://yoursite.com/2016/02/27/gulp-add-watch-bug/</id>
     <published>2016-02-27T12:59:20.000Z</published>
-    <updated>2016-03-01T11:20:34.366Z</updated>
+    <updated>2016-03-01T11:22:31.566Z</updated>
     <content type="html"><![CDATA[<p>这篇文章主要记录下今天做的时候遇到的几个问题。</p>
 <h1 id="gulp-watch">gulp-watch</h1><p>第一个问题当然是gulp-watch这个坑。其实这个坑有了很久，大家也很想gulp可以修复这个东西，但是gulp上面已经声明了，<a href="https://github.com/gulpjs/gulp/issues/651" target="_blank" rel="external">这个不是他们的bug</a>。虽然尽力在修，但是不知道什么时候弄得好。</p>
 <p>网上也有<a href="http://stackoverflow.com/questions/22391527/gulps-gulp-watch-not-triggered-for-new-or-deleted-files" target="_blank" rel="external">另外的解决办法</a>，或者直接调用gaze，但是我试了试貌似不行。</p>
@@ -37,15 +37,15 @@
 <p>这里是引自该<a href="https://segmentfault.com/a/1190000004136053" target="_blank" rel="external">博文</a></p>
 <blockquote>
 <p>首先检测一下版本:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;gulp -v</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gulp -v</span><br></pre></td></tr></table></figure>
 <p>版本如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;CLI version <span class="number">3.9</span>.<span class="number">0</span></span><br><span class="line">&gt;Local version <span class="number">3.9</span>.<span class="number">0</span></span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CLI version <span class="number">3.9</span>.<span class="number">0</span></span><br><span class="line">Local version <span class="number">3.9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
 <p>如果版本过低可以这么升级</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;npm install gulp -g &amp;&amp; npm install gulp --save-dev</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install gulp -g &amp;&amp; npm install gulp --save-dev</span><br></pre></td></tr></table></figure>
 <p>安装babel-loader</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;npm install babel-core babel-preset-es2015 --save-dev</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install babel-core babel-preset-es2015 --save-dev</span><br></pre></td></tr></table></figure>
 <p>重点主要是更换命名</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;mv gulpfile.js gulpfile.babel.js</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv gulpfile.js gulpfile.babel.js</span><br></pre></td></tr></table></figure>
 </blockquote>
 <p>OK，下面谈谈我的漏斗，漏斗的设计理念其实也还是比较简单的。</p>
 <ol>
