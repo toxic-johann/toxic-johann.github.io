@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  
+  <title>将图片转化为ascii码字符串 | Toxic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+    <meta name="author" content="to-xic">
+  
+  
+    <meta name="description" content="最近逛知乎看到了一些比较好玩的图，例如：
+
+
+
+
+
+于是心里就想把这些东西弄出来,毕竟好玩。
+于是想了一下，其实就是把一个图片进行灰度化，然后取出相应的值进行处理就可以了。
+那么要对一个图片进行像素级的处理，马上就想到了神器canvas，并且canvas具有一个神器的方法，getImageData()。
+12345context.clearRect(0, 0, iWidth, iHeight);c">
+  
+  <meta name="description" content="最近逛知乎看到了一些比较好玩的图，例如：
+
+
+
+
+
+于是心里就想把这些东西弄出来,毕竟好玩。
+于是想了一下，其实就是把一个图片进行灰度化，然后取出相应的值进行处理就可以了。
+那么要对一个图片进行像素级的处理，马上就想到了神器canvas，并且canvas具有一个神器的方法，getImageData()。
+12345context.clearRect(0, 0, iWidth, iHeight);c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="将图片转化为ascii码字符串">
+<meta property="og:url" content="http://yoursite.com/2016/03/16/asciiPicture/index.html">
+<meta property="og:site_name" content="Toxic">
+<meta property="og:description" content="最近逛知乎看到了一些比较好玩的图，例如：
+
+
+
+
+
+于是心里就想把这些东西弄出来,毕竟好玩。
+于是想了一下，其实就是把一个图片进行灰度化，然后取出相应的值进行处理就可以了。
+那么要对一个图片进行像素级的处理，马上就想到了神器canvas，并且canvas具有一个神器的方法，getImageData()。
+12345context.clearRect(0, 0, iWidth, iHeight);c">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/4.jpg">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/5.jpg">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/6.jpg">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/1.jpg">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/7.jpg">
+<meta property="og:updated_time" content="2016-03-16T12:02:53.339Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="将图片转化为ascii码字符串">
+<meta name="twitter:description" content="最近逛知乎看到了一些比较好玩的图，例如：
+
+
+
+
+
+于是心里就想把这些东西弄出来,毕竟好玩。
+于是想了一下，其实就是把一个图片进行灰度化，然后取出相应的值进行处理就可以了。
+那么要对一个图片进行像素级的处理，马上就想到了神器canvas，并且canvas具有一个神器的方法，getImageData()。
+12345context.clearRect(0, 0, iWidth, iHeight);c">
+  
+    <link rel="alternate" href="/atom.xml" title="Toxic" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  
+<script type="text/javascript">
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9d865e87f3199160311b03cd56126f47";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+
+</script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <header id="header">
+  <div class="title">
+    <h1><a href="/">Toxic</a></h1>
+    <p><a href="/">李猜猜，被折磨得死去活来的菜鸟</a></p>
+  </div>
+  <nav class="nav">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+    <div class="clearfix"></div>
+  </nav>
+  <div class="clearfix"></div>
+</header>
+    <div class="content"><article class="post">
+  <header>
+    
+      <div class="icon"></div>
+      <a href="/2016/03/16/asciiPicture/">
+  <time datetime="2016-03-16T11:07:48.000Z">
+    2016-03-16
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title">将图片转化为ascii码字符串</h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>最近逛知乎看到了一些比较好玩的图，例如：</p>
+<ul>
+<li><img src="http://7xo9s8.com1.z0.glb.clouddn.com/4.jpg" alt="妈妈不要打我注释"></li>
+<li><img src="http://7xo9s8.com1.z0.glb.clouddn.com/5.jpg" alt="某机智的代码串"></li>
+<li><img src="http://7xo9s8.com1.z0.glb.clouddn.com/6.jpg" alt="某逆天的代码串"></li>
+</ul>
+<p>于是心里就想把这些东西弄出来,毕竟好玩。</p>
+<p>于是想了一下，其实就是把一个图片进行灰度化，然后取出相应的值进行处理就可以了。</p>
+<p>那么要对一个图片进行像素级的处理，马上就想到了神器canvas，并且canvas具有一个神器的方法，<code>getImageData()</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">context.clearRect(<span class="number">0</span>, <span class="number">0</span>, iWidth, iHeight);</span><br><span class="line">canvas.width = iWidth;</span><br><span class="line">canvas.height = iHeight;</span><br><span class="line">context.drawImage(img, <span class="number">0</span>, <span class="number">0</span>); <span class="comment">// 设置对应的图像对象，以及它在画布上的位置</span></span><br><span class="line"><span class="keyword">var</span> imageData = context.getImageData(<span class="number">0</span>, <span class="number">0</span>, iWidth, iHeight);</span><br></pre></td></tr></table></figure>
+<p>这时候我们获得了一个一维的数组。数组里面是依次从左到右，从上到下的各像素的RGBA值。</p>
+<p>那么这个时候我们需要通过RGB提一下灰度值，这个也很简单。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 提取灰度数据</span></span><br><span class="line"><span class="keyword">var</span> imageData = context.getImageData(<span class="number">0</span>, <span class="number">0</span>, iWidth, iHeight);</span><br><span class="line"><span class="keyword">var</span> pixels = imageData.data;</span><br><span class="line"><span class="keyword">var</span> alevel = [];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; pixels.length; i += <span class="number">4</span>) &#123;</span><br><span class="line">	<span class="keyword">var</span> tmp = ~ ~(pixels[i] * <span class="number">0.3</span> + pixels[i + <span class="number">1</span>] * <span class="number">0.59</span> + pixels[i + <span class="number">2</span>] * <span class="number">0.11</span>);</span><br><span class="line">	alevel.push(tmp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后获得了灰度值后将相应的灰度值转化为对应的ascii码就好了。这里参考了一个网上的一篇<a href="http://www.zoneky.com/blog/2014/07/10/ASCII-Art-algorithms/" target="_blank" rel="external">文章</a>。建立了一个映射。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> chars = [<span class="string">'@'</span>, <span class="string">'w'</span>, <span class="string">'#'</span>, <span class="string">'$'</span>, <span class="string">'k'</span>, <span class="string">'d'</span>, <span class="string">'t'</span>, <span class="string">'j'</span>, <span class="string">'i'</span>, <span class="string">'.'</span>, <span class="string">'&amp;nbsp;'</span>];</span><br><span class="line"><span class="keyword">var</span> step = <span class="number">25</span>,map = &#123;&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) &#123;</span><br><span class="line">	<span class="keyword">var</span> index = ~ ~(i / <span class="number">25</span>);</span><br><span class="line">	map[i] = chars[index];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">return</span> map;</span><br></pre></td></tr></table></figure>
+<p>根据灰度值直接取映射就好。那么这时候其实已经完成了图像的转换。但是我们有的时候需要的图片不需要那么大。我们需要提取一下，增大一下粒度。<a href="http://www.zoneky.com/blog/2014/07/10/ASCII-Art-algorithms/" target="_blank" rel="external">文章</a>里面采用的是不断地在canvas上面进行操作，取出所需要的值。不过我有点不大想用这种做法。所以我采取了普通的数组计算方法。</p>
+<p>为了容易编写，我将一维数组转化为二维数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._liftDimension = <span class="function"><span class="keyword">function</span> (<span class="params">arr, width</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> ret = [];</span><br><span class="line">	<span class="keyword">var</span> row = -<span class="number">1</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">		<span class="keyword">if</span> (i % width == <span class="number">0</span>) &#123;</span><br><span class="line">			row++;</span><br><span class="line">          ret.push([]);</span><br><span class="line">	&#125;</span><br><span class="line">	ret[row].push(arr[i]);&#125;</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>然后再在二维数组上面进行粒子化操作，无非就是按照粒子宽度，取出一个正方形数据进行处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._particlize = <span class="function"><span class="keyword">function</span> (<span class="params">arr, parlen, width, height</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> newOne = [];</span><br><span class="line">  <span class="keyword">var</span> startTime = <span class="built_in">Date</span>.now();</span><br><span class="line">  arr = _this._liftDimension(arr, width);</span><br><span class="line">  startTime = <span class="built_in">Date</span>.now();</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> row = <span class="number">0</span>; row &lt; arr.length; row += parlen) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> col = <span class="number">0</span>; col &lt; arr[row].length; col += parlen) &#123;</span><br><span class="line">      <span class="keyword">var</span> tmp = [];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> r = <span class="number">0</span>; r &lt; parlen; r++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> c = <span class="number">0</span>; c &lt; parlen; c++) &#123;</span><br><span class="line">          <span class="keyword">if</span> (arr[row + r]) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arr[row + r][col + c]) &#123;</span><br><span class="line">              tmp.push(arr[row + r][col + c]);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (tmp.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        newOne.push(map[~ ~_this._getParticle(tmp)]);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    newOne.push(<span class="string">"\r\n"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> newOne;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>而粒子计算也只是取出个数组的平均值就好了。</p>
+<p>于是按照这个算法，就可以ascii码化图片了。</p>
+<p>例如：</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/1.jpg" alt="原图"></p>
+<p>转化成（粒度为5）</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/7.jpg" alt="字符化"></p>
+<p><a href="http://wechat.toxicjohann.com/home/index/ascii" target="_blank" rel="external">点击这里体验</a></p>
+<p><a href="https://github.com/toxic-johann/asciiPic" target="_blank" rel="external">点击这里</a>进入github观看源码</p>
+
+    
+  </div>
+  <footer>
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">评论</h1>
+  <div class="ds-thread" data-title="将图片转化为ascii码字符串">
+  </div>
+</section>
+</div>
+  </div>
+  <footer id="footer"><div class="copyright">
+  
+  &copy; 2016 <a href="/">to-xic</a>
+  
+</div>
+<div class="theme-copyright">
+  Theme by <a href="https://github.com/orderedlist" target="_blank">orderedlist</a>
+   | 
+  Redesign by <a href="http://heroicyang.com/" target="_blank">Heroic Yang</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script src="/js/scale.fix.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = { short_name: 'toxicjohann' };
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+  (function($){
+    $('.fancybox').fancybox();
+  })(jQuery);
+</script>
+
+</body>
+</html>
