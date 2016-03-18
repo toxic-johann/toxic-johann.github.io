@@ -76,6 +76,72 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2016/03/18/caused-by-webupload-andriod-bug/">
+  <time datetime="2016-03-18T10:42:02.000Z">
+    2016-03-18
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/03/18/caused-by-webupload-andriod-bug/">由webuploader android bug引发的问题</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>这些天用<a href="http://fex.baidu.com/webuploader/" target="_blank" rel="external">webuploader</a>实现一个手机上传图片的功能。做到一半发现，在电脑上是好的，在iOS上也是好的，但是在android上jpg图片会出错。</p>
+<p>因为开始的时候报的是后端压缩错误，而我这边的压缩环境也布置的不好。一番捣鼓后，发觉还是不行。</p>
+<p>仔细看报错，说我的文件是空文件，但是文件名是存在的。直到我用open命令试图打开这个“一直存在的图片文件”，才发现这个图片文件是空的。</p>
+<p>那么bug就转到了前端上面去了。（啊，仔细去看报错啊，不要想当然。）</p>
+<p>Google了一下发现是webuploader的固有bug。这个原因在webuploader的源代码上面也有标注。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( binary ) &#123;</span><br><span class="line">    <span class="comment">// 强制设置成 content-type 为文件流。</span></span><br><span class="line">    xhr.overrideMimeType &amp;&amp;</span><br><span class="line">            xhr.overrideMimeType(<span class="string">'application/octet-stream'</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// android直接发送blob会导致服务端接收到的是空文件。</span></span><br><span class="line">    <span class="comment">// bug详情。</span></span><br><span class="line">    <span class="comment">// https://code.google.com/p/android/issues/detail?id=39882</span></span><br><span class="line">    <span class="comment">// 所以先用fileReader读取出来再通过arraybuffer的方式发送。</span></span><br><span class="line">    <span class="keyword">if</span> ( Base.os.android ) &#123;</span><br><span class="line">        fr = <span class="keyword">new</span> FileReader();</span><br><span class="line"></span><br><span class="line">        fr.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            xhr.send( <span class="keyword">this</span>.result );</span><br><span class="line">            fr = fr.onload = <span class="literal">null</span>;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        fr.readAsArrayBuffer( binary );</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        xhr.send( binary );</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    xhr.send( formData );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>bug网址<a href="https://code.google.com/p/android/issues/detail?id=39882" target="_blank" rel="external">点击这里</a>。</p>
+<p>根据网上解决方法，这种情况下，只需要将sendAsBinary这个条件设定为true，就可以避免这个bug了。</p>
+<blockquote>
+<p>sendAsBinary {Object} [可选] [默认值：false] 是否已二进制的流的方式发送文件，这样整个上传内容php://input都为文件内容， 其他参数在$_GET数组中。</p>
+</blockquote>
+<p>但是这样子又诱发出另一个问题了。因为这种方式下，我们收到的文件是在post域里的，post会进行一定处理。那么究竟是处理成什么样呢。我们不清楚。</p>
+<p>如果我们只是简单地用self.post()方法取出来，会发现是一个已经包装过的对象了。那样子我们就不能确认这个代码究竟还是不是正确。而且如何取出来也是一个问题。</p>
+<p>由于我们用thinkjs1.x版本，于是我们唯有探进去看。在core/http.js代码里面我们发现了这么一个处理方式。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span><br><span class="line"> * 普通的表单上传</span><br><span class="line"> * @return &#123;[type]&#125; [description]</span><br><span class="line"> */</span></span><br><span class="line">_commonPost: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> buffers = [];</span><br><span class="line">  <span class="keyword">var</span> length = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">var</span> deferred = getDefer();</span><br><span class="line">  <span class="keyword">this</span>.req.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">chunk</span>)</span>&#123;</span><br><span class="line">    buffers.push(chunk);</span><br><span class="line">    length += chunk.length;</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">this</span>.req.on(<span class="string">'end'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    self.http.payload = Buffer.concat(buffers).toString();</span><br><span class="line">    tag(<span class="string">'form_parse'</span>, self.http).then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      <span class="comment">//默认使用querystring.parse解析</span></span><br><span class="line">      <span class="keyword">if</span> (isEmpty(self.http.post) &amp;&amp; self.http.payload) &#123;</span><br><span class="line">        self.http.post = self.filterQuery(querystring.parse(self.http.payload));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">var</span> post = self.http.post;</span><br><span class="line">      <span class="keyword">var</span> length = <span class="built_in">Object</span>.keys(post).length;</span><br><span class="line">      <span class="comment">//最大表单数超过限制</span></span><br><span class="line">      <span class="keyword">if</span> (length &gt; C(<span class="string">'post_max_fields'</span>)) &#123;</span><br><span class="line">        self.res.statusCode = <span class="number">413</span>;</span><br><span class="line">        self.http.end();</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">for</span>(<span class="keyword">var</span> name <span class="keyword">in</span> post)&#123;</span><br><span class="line">        <span class="comment">//单个表单值长度超过限制</span></span><br><span class="line">        <span class="keyword">if</span> (post[name] &amp;&amp; post[name].length &gt; C(<span class="string">'post_max_fields_size'</span>)) &#123;</span><br><span class="line">          self.res.statusCode = <span class="number">413</span>;</span><br><span class="line">          self.http.end();</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      deferred.resolve(self.http);</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> deferred.promise;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>我们可以看到self.http.payload是刚拼接出来的chunk，而这个chunk这个时候存在来了，且以后也没有经过querystring之类的进行处理。我们假设这个可以相信的，那我们就进行处理吧。</p>
+<p>结果这个时候我们发现无论处理成binary、base64还是utf-8格式，文件都已经损坏了。而且在代码比对上我们也发现的确有所不同。</p>
+<p>这个时候实在无奈了，于是就修改了一下thinkjs源码进行尝试。</p>
+<p>我把处理后的代码串的长度打出来进行比对。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(length)；</span><br><span class="line"><span class="built_in">console</span>.log(Buffer.concat(buffers).length)</span><br><span class="line"><span class="built_in">console</span>.log(Buffer.concat(buffers).toString().length)</span><br></pre></td></tr></table></figure>
+<p>结果发现第三个值教前两个值有所减小。于是上网查了下，发现由于编码问题，这些转码会容易造成数据丢失。</p>
+<p>所以要么就是避免走过这里，要么就是更改这段代码。</p>
+<p>最后还是找了老六看看有没有什么办法可以弥补。</p>
+<p>最后发现thinkjs可以通过在头部打入一个标记标明上传的是文件，躲过这个处理。</p>
+<blockquote>
+<p> post_ajax_filename_header: ‘x-filename’, //通过ajax上传文件时文件名对应的header，如果有这个header表示是文件上传</p>
+</blockquote>
+<p>于是这个时候就折回去webuploader查看一下有没有方法可以修改header。</p>
+<p>最后成功地发现了<a href="http://fex.baidu.com/webuploader/doc/index.html#WebUploader_Uploader_events" target="_blank" rel="external">uploadBeforeSend事件</a>。</p>
+<p>于是我们通过这个事件给请求打上header，从而走到正确的文件处理上。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(type ==<span class="string">"uploadBeforeSend"</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> headers = <span class="built_in">arguments</span>[<span class="number">3</span>];</span><br><span class="line">    headers[<span class="string">"x-filename"</span>] = <span class="built_in">arguments</span>[<span class="number">2</span>].name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就此修复这个bug…………</p>
+<p>花了一天…………醉了………………</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2016/03/17/requirejs-not-reload-sth/">
   <time datetime="2016-03-17T05:49:49.000Z">
     2016-03-17
@@ -625,84 +691,6 @@ var _hmt = _hmt || [];
 <h1 id="后记">后记</h1><p>其实这篇文章应该在一个月前就应该写的，但是那时候由于业务没有做完，所以就没有继续研究下去，这个星期重新拾起这项业务，所以就重新研究了下。</p>
 <p>这项业务主要是研究怎样在微信页面里使用视频，所以针对的主要是微信自己所使用的浏览器组件，其余的一些奇怪的手机组件没有怎么测试。当然了，现在市面上手机这么多，我也难以覆盖全。如果大家看到有纰漏，欢迎提出。</p>
 <p>差不多这样吧，想到再补充2333。</p>
-
-    
-  </div>
-  <footer class="end-sep">
-    
-      
-      
-    
-    <div class="clearfix"></div>
-  </footer>
-</article>
-
-
-  
-    <article class="post">
-  <header>
-    
-      <div class="icon"></div>
-      <a href="/2016/01/09/sth-about-svg/">
-  <time datetime="2016-01-09T03:26:28.000Z">
-    2016-01-09
-  </time>
-</a>
-    
-    
-  
-    <h1 class="title"><a href="/2016/01/09/sth-about-svg/">谈谈最近做的SVG</a></h1>
-  
-
-  </header>
-  
-  <div class="entry">
-    
-      <p>其实svg是挺有用的图像表现方式。首先明确一下一些常见的优点：</p>
-<ul>
-<li>矢量化</li>
-<li>文本控制，容易编辑</li>
-<li>大小较小</li>
-<li>css比较容易控制</li>
-</ul>
-<p>当然，还是有些众所周知的缺点</p>
-<ul>
-<li>毕竟运用了dom标签</li>
-<li>跑动画真心不合适</li>
-<li>是用元素控制交互 </li>
-</ul>
-<p>基于这几个原因，所以一般svg都是用于一些静态图片的替代。因为矢量的特点，他对于缩放的兼容性比较好。而且CSS可以直接控制这种优良属性，也方便了程序员进行直接操控。</p>
-<p>插入svg其实有好几个方式。</p>
-<ul>
-<li>直接用img插入</li>
-</ul>
-<p>这种情况下svg就相当于一个图片。这种使用的方式是最简单的，但是我们不能利用css去操控它的属性。这对于一些不需要更换的svg是挺经济的方式。</p>
-<ul>
-<li>使用backgroud属性写入</li>
-</ul>
-<p>这种情况一般用于你不想用img或者svg标签的时候使用。其实把代码直接写在css样式里也不坏。</p>
-<ul>
-<li>使用svg标签进行内联</li>
-</ul>
-<p>这种情况一般可以用于那些你可能要经常操作的svg文本。内联的svg我们可以通过css修改他的各种属性，例如我们可以直接通过添加一个class进行换肤等等。</p>
-<p>基于这次业务的需求，我选择了svg。因为我们可能频繁修改他的样式。</p>
-<p>其实我有打算过一种模式，我通过在线拉取svg文件，抽取他当中的xml代码，然后生成内联svg。不过这种模式在手机上并不怎么可行。</p>
-<p>因此我现在的做法都是直接传输svg代码，然后内联到html中。</p>
-<p>为了满足我的可以各种更改的需求，我首先要将收到的代码进行过滤。</p>
-<p>由于我们客户一般修改的是颜色，因此我需要把形状属性的颜色属性去掉。</p>
-<p>形状属性只要有以下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;circle&gt;</span><br><span class="line">&lt;ellipse&gt;</span><br><span class="line">&lt;line&gt;</span><br><span class="line">&lt;path&gt;</span><br><span class="line">&lt;polygon&gt;</span><br><span class="line">&lt;polyline&gt;</span><br><span class="line">&lt;rect&gt;</span><br></pre></td></tr></table></figure>
-<p>我需要做的是把其中的fill，stroke等属性过滤掉，然后利用css控制这些属性。就可以达到我需要的效果。</p>
-<p>这里主要遇到的坑有两个。</p>
-<ul>
-<li>android里stroke-width=0px属性失效。</li>
-</ul>
-<p>这个在早先的文章里也提过，加个判断，如果是0就不要添加stroke属性就好。</p>
-<ul>
-<li>symbol的id</li>
-</ul>
-<p>这个算是自己傻逼的一个例证吧。symbol是svg一个常用的标签。代表元件，用于东西复用的，利用use标签调用。symbol使用id进行区别。如果你添加了多个symbol是相同id的话，use拿到的当然永远是第一个了。</p>
-<p>所以，但凡以后遇到添加id的，记得增加随机id保持其独立性。</p>
 
     
   </div>

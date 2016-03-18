@@ -76,6 +76,84 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2016/01/09/sth-about-svg/">
+  <time datetime="2016-01-09T03:26:28.000Z">
+    2016-01-09
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/01/09/sth-about-svg/">谈谈最近做的SVG</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>其实svg是挺有用的图像表现方式。首先明确一下一些常见的优点：</p>
+<ul>
+<li>矢量化</li>
+<li>文本控制，容易编辑</li>
+<li>大小较小</li>
+<li>css比较容易控制</li>
+</ul>
+<p>当然，还是有些众所周知的缺点</p>
+<ul>
+<li>毕竟运用了dom标签</li>
+<li>跑动画真心不合适</li>
+<li>是用元素控制交互 </li>
+</ul>
+<p>基于这几个原因，所以一般svg都是用于一些静态图片的替代。因为矢量的特点，他对于缩放的兼容性比较好。而且CSS可以直接控制这种优良属性，也方便了程序员进行直接操控。</p>
+<p>插入svg其实有好几个方式。</p>
+<ul>
+<li>直接用img插入</li>
+</ul>
+<p>这种情况下svg就相当于一个图片。这种使用的方式是最简单的，但是我们不能利用css去操控它的属性。这对于一些不需要更换的svg是挺经济的方式。</p>
+<ul>
+<li>使用backgroud属性写入</li>
+</ul>
+<p>这种情况一般用于你不想用img或者svg标签的时候使用。其实把代码直接写在css样式里也不坏。</p>
+<ul>
+<li>使用svg标签进行内联</li>
+</ul>
+<p>这种情况一般可以用于那些你可能要经常操作的svg文本。内联的svg我们可以通过css修改他的各种属性，例如我们可以直接通过添加一个class进行换肤等等。</p>
+<p>基于这次业务的需求，我选择了svg。因为我们可能频繁修改他的样式。</p>
+<p>其实我有打算过一种模式，我通过在线拉取svg文件，抽取他当中的xml代码，然后生成内联svg。不过这种模式在手机上并不怎么可行。</p>
+<p>因此我现在的做法都是直接传输svg代码，然后内联到html中。</p>
+<p>为了满足我的可以各种更改的需求，我首先要将收到的代码进行过滤。</p>
+<p>由于我们客户一般修改的是颜色，因此我需要把形状属性的颜色属性去掉。</p>
+<p>形状属性只要有以下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;circle&gt;</span><br><span class="line">&lt;ellipse&gt;</span><br><span class="line">&lt;line&gt;</span><br><span class="line">&lt;path&gt;</span><br><span class="line">&lt;polygon&gt;</span><br><span class="line">&lt;polyline&gt;</span><br><span class="line">&lt;rect&gt;</span><br></pre></td></tr></table></figure>
+<p>我需要做的是把其中的fill，stroke等属性过滤掉，然后利用css控制这些属性。就可以达到我需要的效果。</p>
+<p>这里主要遇到的坑有两个。</p>
+<ul>
+<li>android里stroke-width=0px属性失效。</li>
+</ul>
+<p>这个在早先的文章里也提过，加个判断，如果是0就不要添加stroke属性就好。</p>
+<ul>
+<li>symbol的id</li>
+</ul>
+<p>这个算是自己傻逼的一个例证吧。symbol是svg一个常用的标签。代表元件，用于东西复用的，利用use标签调用。symbol使用id进行区别。如果你添加了多个symbol是相同id的话，use拿到的当然永远是第一个了。</p>
+<p>所以，但凡以后遇到添加id的，记得增加随机id保持其独立性。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2016/01/01/my-days-in-army/">
   <time datetime="2016-01-01T07:40:23.000Z">
     2016-01-01
