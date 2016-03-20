@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-03-18T11:05:40.862Z</updated>
+  <updated>2016-03-20T03:56:15.528Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,46 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[调整一下对比度]]></title>
+    <link href="http://yoursite.com/2016/03/20/adjust-contrast-problem/"/>
+    <id>http://yoursite.com/2016/03/20/adjust-contrast-problem/</id>
+    <published>2016-03-20T03:39:08.000Z</published>
+    <updated>2016-03-20T03:56:15.528Z</updated>
+    <content type="html"><![CDATA[<p>如果还记得前几天我做的图片转换的玩意。就会发现一个问题。由于灰度的转化，丢失的数据量还是比较大。所以很多情况下，如果图片的对比度不够，很难得到我们想要的ascii码图。</p>
+<p>所以这个问题还是挺好解决的，既然对比度不够，那我们就调节对比度。</p>
+<p>将imageData取出，然后将其进行适当的调整即可。</p>
+<p>对比度调整的原理还是比较简单的。算出灰度平均值，也就是RGB的平均值。然后将其与任意像素计算差距，按照你需要的系数进行相乘。</p>
+<p>写成代码就是这样子。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.adjustContrast = (imageData,coefficient)=&gt;&#123;</span><br><span class="line">  <span class="keyword">if</span>(!<span class="keyword">this</span>._isUint8ClampedArray(imageData))&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"imageData need to be an Uint8ClampedArray"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  coefficient = coefficient || <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">let</span> average = <span class="keyword">this</span>._getAverageOfRGB(imageData);</span><br><span class="line">  imageData = imageData.map((each,index)=&gt;&#123;</span><br><span class="line">    <span class="comment">// 排除透明度</span></span><br><span class="line">    <span class="keyword">if</span>((index+<span class="number">1</span>)%<span class="number">4</span> == <span class="number">0</span>)&#123;</span><br><span class="line">      <span class="keyword">if</span>(index == <span class="number">0</span>)&#123;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> each;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> delta = each-average;</span><br><span class="line">    <span class="keyword">let</span> ans = each+delta*coefficient;</span><br><span class="line">    <span class="comment">// 作防护性处理</span></span><br><span class="line">    <span class="keyword">if</span>(ans &gt; <span class="number">255</span>)&#123;</span><br><span class="line">      ans = <span class="number">255</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(ans &lt; <span class="number">0</span> )&#123;</span><br><span class="line">      ans = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> imageData;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>由于我这段代码主要服务的对象是canvas，也就是用canvas中的getImageData取出的数据。一般我就做一下判断。</p>
+<p>因为Uint8ClamperdArray并不是数组封装，所以用Array.isArray无法将其检测。因此我用了构造函数判断这种方法。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._isUint8ClampedArray = arr=&gt;&#123;</span><br><span class="line">  arr = arr || <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">let</span> cons = arr.constructor.toString();</span><br><span class="line">  <span class="keyword">if</span>(cons.match(<span class="string">"Uint8ClampedArray"</span>))&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们可以轻易地计算出均值，再进行简单的计算就可以得到调整后的像素数据。</p>
+<p>可以看到我在这里做出了防护性处理。其实这种处理不一定需要。</p>
+<p>因为Uint8ClamperdArray数据中每一个元子大小就是0~255。超出他自己会进行相应的转化。所以原理上可以省略这一段话。</p>
+<p>然后利用这个方法我们就可以轻易得到我们需要的数据。</p>
+<p>另外imageData是一个只读对象，不能使用<code>imageData.data = mydata</code>这种方式进行赋值。</p>
+<p>所以这种时候我们可以直接采用他所封装的set方式进行处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">imageData.data.set(Photoshop.adjustContrast(imageData.data,contrast));</span><br></pre></td></tr></table></figure>
+<p>这种方式就可以达到我们的目的。下面还是上图吧。</p>
+<p>原图:</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/3.pic.jpg" alt="辛炜哥哥"></p>
+<p>ascii转化后（粒子度为4）:</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/4.pic_hd.jpg" alt="灰色的辛炜哥哥"></p>
+<p>对比度系数为5调整后的ascii转化:</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/5.pic_hd.jpg" alt="simple的辛炜哥哥"></p>
+<p>just for fun，exited！</p>
+<p>要玩还是去<a href="http://wechat.toxicjohann.com/home/index/ascii" target="_blank" rel="external">老地方</a>，不过没写手机支持。手机玩起来比较麻烦。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>如果还记得前几天我做的图片转换的玩意。就会发现一个问题。由于灰度的转化，丢失的数据量还是比较大。所以很多情况下，如果图片的对比度不够，很难得到我们想要的ascii码图。</p>
+<p>所以这个问题还是挺好解决的，既然对比度不够，那我们就调节对比度。</p>
+<p>将imag]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[由webuploader android bug引发的问题]]></title>
@@ -871,59 +911,6 @@
 ]]></content>
     <summary type="html">
     <![CDATA[<p>只是记录一下上次用到touch开发的时候遇到的一些问题。<br>一般来说，很多人开发touch事件都会调用zepto上的一些接口。不过由于本人愚钝，并不知道有这种东西。故直接调用了html5定义中的touchstart,touchend,touchmove三个事件。事实上这]]>
-    </summary>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[web端手机方向传感器闲谈]]></title>
-    <link href="http://yoursite.com/2015/10/26/web-mobile-sensor/"/>
-    <id>http://yoursite.com/2015/10/26/web-mobile-sensor/</id>
-    <published>2015-10-26T11:02:48.000Z</published>
-    <updated>2015-10-26T11:03:21.000Z</updated>
-    <content type="html"><![CDATA[<p>因为工作需要，这段时间接触的手机传感器比较多。<br>总体来说，市场上的传感器表现参差不齐。IPhone在传感器表现方面卓越，而安卓由于什么机型都有，则显得差强人意。</p>
-<hr>
-<p>首先还是说说怎么在web端调用手机传感器吧。<br>这个还是比较简单的，只需要添加一个事件就可以了。<br>在最新的h5规范里面，引入了 <strong>DeviceOrientation</strong> 事件。如果没猜错，该接口应该是调用手机里的综合方向传感器。<br>事实上，手机上的方向传感器有多个。例如在安卓手机上就有11种传感器，而诸如</p>
-<ul>
-<li>TYPE_GYROSCOPE </li>
-<li>TYPE_LINEAR_ACCELERATION  </li>
-<li>TYPE_MAGNETIC_FIELD </li>
-<li>TYPE_ORIENTATION </li>
-<li>TYPE_ROTATION_VECTOR </li>
-</ul>
-<p>均可以用作对手机的状态翻转等进行监测。当然这需要不同的方法，按下不表。<br>而目测DeviceOrientation方法是结合了重力检测与磁场检测两方面实现的翻转检测。<br>DeviceOrientation方法主要监测的是手机上的三个翻转角。<br>你可以将手机水平至于桌面上。</p>
-<ul>
-<li>手机在水平面上旋转为alpha角，此角是基于Z轴旋转。实现方式一般是基于磁场。因此在各种机型上你可以发现这个数值差异十分大。</li>
-<li>手机正常翻起与桌面夹角为beta角，此角是基于X轴旋转。实现方式一般是基于重力分量。</li>
-<li>手机侧翻与桌面夹角为gama角，此角是基于Y轴旋转。实现方式也是基于重力分量。</li>
-</ul>
-<p>我们可以在<a href="http://www.w3.org/html/ig/zh/wiki/DeviceOrientation%E4%BA%8B%E4%BB%B6%E8%A7%84%E8%8C%83" target="_blank" rel="external">w3c</a>上阅读相关的定义数据。</p>
-<p>做一个做简单的调用例子 </p>
-<pre><code class="bash"><span class="keyword">if</span> (window.DeviceOrientationEvent) {
-    window.addEventListener(<span class="string">'deviceorientation'</span>, <span class="keyword">function</span>(event) {
-        var a = event.alpha,
-            b = event.beta,
-            g = event.gamma;
-        console.log(<span class="string">'Orientation - Alpha: '</span> + a + <span class="string">', Beta: '</span>+ b + <span class="string">', Gamma: '</span> + g);
-    }, <span class="literal">false</span>);
-} <span class="keyword">else</span> {
-    console.log(<span class="string">'This device does not support deviceorientation'</span>);
-}
-</code></pre>
-<p>借用这段代码你就可以看到手机上的方向传感器封装后的API显示出来的数值。<br>但是当你记录下来后，你可以发现。该数值在IPhone上是连续而且稳定的。但是在安卓上却十分容易产生波动。<br>那么，如何去除这种波动则成为了一个十分重要的问题了。</p>
-<hr>
-<p>事实上，这个问题也很简单。<br>我们只需要人工制造一个滤波器就可以了。<br>假设我们接受的数值为X，则设上一次数值为Xp，我们可以运用一个加权函数降低波动带来的影响。 </p>
-<p>final=X<em>alpha+(1-alpha)</em>Xp</p>
-<p>当然，假如你的要求比较精细。很多时候简单的一次加权并不能完整去除波动。<br>所以我们可以采用记录多个以往的值进行平均。 </p>
-<p>final = (X+(Xp1+Xp2+Xp3+Xp4))/5</p>
-<p>通过这种方式得出的数值波动会降低并且更加流畅。<br>鉴于此，对于传感器的数据调用，一定要真机调试取值适配机型，不要想当然的设置。例如当你把手机与地面垂直的时候，由于磁场感应器位置不佳，容易出现各种方向数值紊乱的场景。因此不推荐调用各种极值的数值。</p>
-<hr>
-<p>而关于手机传感器调用的频率，大概是50ms一次。因此我们不需要太过担心带来影响。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>因为工作需要，这段时间接触的手机传感器比较多。<br>总体来说，市场上的传感器表现参差不齐。IPhone在传感器表现方面卓越，而安卓由于什么机型都有，则显得差强人意。</p>
-<hr>
-<p>首先还是说说怎么在web端调用手机传感器吧。<br>这个还是比较简单的，只需要添加]]>
     </summary>
     
   </entry>

@@ -1,0 +1,191 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  
+  <title>调整一下对比度 | Toxic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+    <meta name="author" content="to-xic">
+  
+  
+    <meta name="description" content="如果还记得前几天我做的图片转换的玩意。就会发现一个问题。由于灰度的转化，丢失的数据量还是比较大。所以很多情况下，如果图片的对比度不够，很难得到我们想要的ascii码图。
+所以这个问题还是挺好解决的，既然对比度不够，那我们就调节对比度。
+将imageData取出，然后将其进行适当的调整即可。
+对比度调整的原理还是比较简单的。算出灰度平均值，也就是RGB的平均值。然后将其与任意像素计算差距，按照你需要">
+  
+  <meta name="description" content="如果还记得前几天我做的图片转换的玩意。就会发现一个问题。由于灰度的转化，丢失的数据量还是比较大。所以很多情况下，如果图片的对比度不够，很难得到我们想要的ascii码图。
+所以这个问题还是挺好解决的，既然对比度不够，那我们就调节对比度。
+将imageData取出，然后将其进行适当的调整即可。
+对比度调整的原理还是比较简单的。算出灰度平均值，也就是RGB的平均值。然后将其与任意像素计算差距，按照你需要">
+<meta property="og:type" content="article">
+<meta property="og:title" content="调整一下对比度">
+<meta property="og:url" content="http://yoursite.com/2016/03/20/adjust-contrast-problem/index.html">
+<meta property="og:site_name" content="Toxic">
+<meta property="og:description" content="如果还记得前几天我做的图片转换的玩意。就会发现一个问题。由于灰度的转化，丢失的数据量还是比较大。所以很多情况下，如果图片的对比度不够，很难得到我们想要的ascii码图。
+所以这个问题还是挺好解决的，既然对比度不够，那我们就调节对比度。
+将imageData取出，然后将其进行适当的调整即可。
+对比度调整的原理还是比较简单的。算出灰度平均值，也就是RGB的平均值。然后将其与任意像素计算差距，按照你需要">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/3.pic.jpg">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/4.pic_hd.jpg">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/5.pic_hd.jpg">
+<meta property="og:updated_time" content="2016-03-20T03:56:15.528Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="调整一下对比度">
+<meta name="twitter:description" content="如果还记得前几天我做的图片转换的玩意。就会发现一个问题。由于灰度的转化，丢失的数据量还是比较大。所以很多情况下，如果图片的对比度不够，很难得到我们想要的ascii码图。
+所以这个问题还是挺好解决的，既然对比度不够，那我们就调节对比度。
+将imageData取出，然后将其进行适当的调整即可。
+对比度调整的原理还是比较简单的。算出灰度平均值，也就是RGB的平均值。然后将其与任意像素计算差距，按照你需要">
+  
+    <link rel="alternate" href="/atom.xml" title="Toxic" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  
+<script type="text/javascript">
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9d865e87f3199160311b03cd56126f47";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+
+</script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <header id="header">
+  <div class="title">
+    <h1><a href="/">Toxic</a></h1>
+    <p><a href="/">李猜猜，被折磨得死去活来的菜鸟</a></p>
+  </div>
+  <nav class="nav">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+    <div class="clearfix"></div>
+  </nav>
+  <div class="clearfix"></div>
+</header>
+    <div class="content"><article class="post">
+  <header>
+    
+      <div class="icon"></div>
+      <a href="/2016/03/20/adjust-contrast-problem/">
+  <time datetime="2016-03-20T03:39:08.000Z">
+    2016-03-20
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title">调整一下对比度</h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>如果还记得前几天我做的图片转换的玩意。就会发现一个问题。由于灰度的转化，丢失的数据量还是比较大。所以很多情况下，如果图片的对比度不够，很难得到我们想要的ascii码图。</p>
+<p>所以这个问题还是挺好解决的，既然对比度不够，那我们就调节对比度。</p>
+<p>将imageData取出，然后将其进行适当的调整即可。</p>
+<p>对比度调整的原理还是比较简单的。算出灰度平均值，也就是RGB的平均值。然后将其与任意像素计算差距，按照你需要的系数进行相乘。</p>
+<p>写成代码就是这样子。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.adjustContrast = (imageData,coefficient)=&gt;&#123;</span><br><span class="line">  <span class="keyword">if</span>(!<span class="keyword">this</span>._isUint8ClampedArray(imageData))&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"imageData need to be an Uint8ClampedArray"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  coefficient = coefficient || <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">let</span> average = <span class="keyword">this</span>._getAverageOfRGB(imageData);</span><br><span class="line">  imageData = imageData.map((each,index)=&gt;&#123;</span><br><span class="line">    <span class="comment">// 排除透明度</span></span><br><span class="line">    <span class="keyword">if</span>((index+<span class="number">1</span>)%<span class="number">4</span> == <span class="number">0</span>)&#123;</span><br><span class="line">      <span class="keyword">if</span>(index == <span class="number">0</span>)&#123;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> each;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> delta = each-average;</span><br><span class="line">    <span class="keyword">let</span> ans = each+delta*coefficient;</span><br><span class="line">    <span class="comment">// 作防护性处理</span></span><br><span class="line">    <span class="keyword">if</span>(ans &gt; <span class="number">255</span>)&#123;</span><br><span class="line">      ans = <span class="number">255</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(ans &lt; <span class="number">0</span> )&#123;</span><br><span class="line">      ans = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> imageData;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>由于我这段代码主要服务的对象是canvas，也就是用canvas中的getImageData取出的数据。一般我就做一下判断。</p>
+<p>因为Uint8ClamperdArray并不是数组封装，所以用Array.isArray无法将其检测。因此我用了构造函数判断这种方法。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._isUint8ClampedArray = arr=&gt;&#123;</span><br><span class="line">  arr = arr || <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">let</span> cons = arr.constructor.toString();</span><br><span class="line">  <span class="keyword">if</span>(cons.match(<span class="string">"Uint8ClampedArray"</span>))&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们可以轻易地计算出均值，再进行简单的计算就可以得到调整后的像素数据。</p>
+<p>可以看到我在这里做出了防护性处理。其实这种处理不一定需要。</p>
+<p>因为Uint8ClamperdArray数据中每一个元子大小就是0~255。超出他自己会进行相应的转化。所以原理上可以省略这一段话。</p>
+<p>然后利用这个方法我们就可以轻易得到我们需要的数据。</p>
+<p>另外imageData是一个只读对象，不能使用<code>imageData.data = mydata</code>这种方式进行赋值。</p>
+<p>所以这种时候我们可以直接采用他所封装的set方式进行处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">imageData.data.set(Photoshop.adjustContrast(imageData.data,contrast));</span><br></pre></td></tr></table></figure>
+<p>这种方式就可以达到我们的目的。下面还是上图吧。</p>
+<p>原图:</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/3.pic.jpg" alt="辛炜哥哥"></p>
+<p>ascii转化后（粒子度为4）:</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/4.pic_hd.jpg" alt="灰色的辛炜哥哥"></p>
+<p>对比度系数为5调整后的ascii转化:</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/5.pic_hd.jpg" alt="simple的辛炜哥哥"></p>
+<p>just for fun，exited！</p>
+<p>要玩还是去<a href="http://wechat.toxicjohann.com/home/index/ascii" target="_blank" rel="external">老地方</a>，不过没写手机支持。手机玩起来比较麻烦。</p>
+
+    
+  </div>
+  <footer>
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">评论</h1>
+  <div class="ds-thread" data-title="调整一下对比度">
+  </div>
+</section>
+</div>
+  </div>
+  <footer id="footer"><div class="copyright">
+  
+  &copy; 2016 <a href="/">to-xic</a>
+  
+</div>
+<div class="theme-copyright">
+  Theme by <a href="https://github.com/orderedlist" target="_blank">orderedlist</a>
+   | 
+  Redesign by <a href="http://heroicyang.com/" target="_blank">Heroic Yang</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script src="/js/scale.fix.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = { short_name: 'toxicjohann' };
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+  (function($){
+    $('.fancybox').fancybox();
+  })(jQuery);
+</script>
+
+</body>
+</html>
