@@ -76,6 +76,90 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2016/03/26/create-a-turntable/">
+  <time datetime="2016-03-26T04:23:00.000Z">
+    2016-03-26
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/03/26/create-a-turntable/">编写一个转盘插件</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>因为业务需要，最近要编写一个转盘插件。</p>
+<p>现在网上一般一次性的转盘插件大都是用图片做的就好了，轻松。但是考虑到我们这个插件里面设定的奖项会随机更改，因此我选择了用canvas。</p>
+<p>canvas绘制转盘的也是十分方便的。原理就类似于绘制一个饼图。然后通过transform的属性，让canvas旋转。达到动起来的目的。</p>
+<p>那么我们该怎么做呢？</p>
+<ul>
+<li><strong>首先先画一个饼</strong></li>
+</ul>
+<p>这个在网上有些相关的教程，比如<a href="http://www.alloyteam.com/2015/05/ru-he-yong-canvas-hua-tu-biao-1-shan-xing-tu-he-huan-xing-tu/" target="_blank" rel="external">腾讯的Alloyteam就有相关的文章</a>。</p>
+<p>一般来说，我们会得到一个奖品的几率图。如果你要画一个按照产品几率的大小变化的饼图，你需要按照他们的几率计算出每个扇面该占有的角度。如果你是要等分的饼图，那么你就按照扇面的个数算出所需的角度大小。</p>
+<p>接着我们要学会去绘画一个扇形。</p>
+<p>画扇形众所周知就是两条直线边，和一个弧形。所以我们可以分解成，先画一个从圆形到弧形的边，然后画一个弧形，紧接着闭合曲线。就可以完成一个扇形。</p>
+<p>画弧形的函数是<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D/arc" target="_blank" rel="external">arc</a>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);</span><br><span class="line"><span class="comment">//圆心X坐标、圆心Y左边、半径、圆弧开始弧度、圆弧结束弧度、是否逆时针</span></span><br></pre></td></tr></table></figure>
+<p>那么我们就可以这么用。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">self.context.beginPath();</span><br><span class="line"><span class="comment">// 移动到圆心</span></span><br><span class="line">self.context.moveTo(cx, cy);</span><br><span class="line"><span class="comment">// 从圆心画直线到计算好的圆外边上的点</span></span><br><span class="line">self.context.lineTo(startX, startY);</span><br><span class="line"><span class="comment">// 从外边上的点画曲线</span></span><br><span class="line"><span class="comment">// 弧度和角度转换，这个注意</span></span><br><span class="line">self.context.arc(cx,cy,r,startRadius,endRadius, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"><span class="comment">//上色</span></span><br><span class="line">self.context.fillStyle =color;</span><br><span class="line">self.context.fill();</span><br><span class="line">self.context.closePath();</span><br></pre></td></tr></table></figure>
+<p>然后我们不断调用，就可以画出来一个饼。</p>
+<p>然后转盘上的话，一般都是有字的。但是canvas画字，没错。只能打横画！不能竖排，不能旋转。</p>
+<p>这里我看设计本来是竖排的，竖排的话，我就要将他一个个字的画上去，比较麻烦。这个以后我可以玩玩。哈哈。</p>
+<p>然后我们后来确定的做法，是按照横排将字体画上去。但是这个还是个问题，因为转盘每个字当然是以圆心为轴进行旋转的。所以字体还是要旋转的。</p>
+<p>这个时候我们就只有一种办法了。就是先将canvas旋转合适的角度，然后将字体写上去。就此达到我们的目的。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">self.context.fillStyle = fontColor;</span><br><span class="line">self.context.save();</span><br><span class="line">self.context.translate(textX, textY);</span><br><span class="line">self.context.rotate((startRadius+endRadius)/<span class="number">2</span>+<span class="built_in">Math</span>.PI/<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">self.context.font = <span class="string">"28px SimHei"</span>;</span><br><span class="line">self.context.textAlign = <span class="string">'center'</span>;</span><br><span class="line">self.context.fillText(text, <span class="number">0</span>, <span class="number">0</span>,textWidth);</span><br><span class="line"></span><br><span class="line">self.context.restore();</span><br></pre></td></tr></table></figure>
+<p>那么就这样，我们画出了一个带字的饼，也就是转盘了。</p>
+<ul>
+<li><strong>让转盘动起来</strong></li>
+</ul>
+<p>让转盘动起来只需要动画就好。但是，我们这个转盘是需要停在某一个地方的。所以我们需要一个可控的结果。因此，我采用了js进行控制的动画。</p>
+<p>如果适配的浏览器支持requestAnimationFrame，我觉得还是用requestAnimationFrame比较好。由于我需要适配的浏览器并不全部都支持，因此我才用了setTimeout，原理上也是差不多。</p>
+<p>既然采用setTimeout的话，我们需要把握的就是转盘每一个时间点转过的角度。然后因为我们要弄出来像慢慢停下的效果，所以我们需要对位置进行一些控制。</p>
+<p>我们首先先算好转盘最终要停下来的地点，然后根据我们需要的时间算出速度和加速度。我们可以认为抓盘是在做一个匀减速运动。那样子就给了我们一个慢慢停下来的效果。</p>
+<p>然后在每个时间点，我们算出他在相应的时间段里走过的路程，将转盘移动到相应的角度，算出下一步的速度值，进行循环调用，直到最后停下来即可。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">_rotateBase:<span class="function"><span class="keyword">function</span>(<span class="params">v0,a,delta,target,s</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> self=<span class="keyword">this</span>;</span><br><span class="line">  s = s || <span class="number">0</span>;</span><br><span class="line">  <span class="comment">// 计算出单位时间内应该移动的距离</span></span><br><span class="line">  <span class="keyword">let</span> angle = v0*delta+<span class="number">0.5</span>*a*delta*delta;</span><br><span class="line">  <span class="comment">// 计算出下一次调用的速度</span></span><br><span class="line">  <span class="keyword">let</span> vt = v0+a*delta;</span><br><span class="line">  <span class="comment">// 计算出已经总共移动的距离。</span></span><br><span class="line">  s = angle+s;</span><br><span class="line">  <span class="comment">// 如果速度归为0，我们即可认为转动结束，不过由于到时候落位不转，我们直接把落位调到目标位置</span></span><br><span class="line">  <span class="comment">// 因为这个时候速度已经非常的慢，而且单位时间比较短，我们可以忽略这种误差</span></span><br><span class="line">  <span class="comment">// 因此这种调整并不会对用户带来十分不好的体验。</span></span><br><span class="line">  <span class="keyword">if</span>(v0 &lt;= <span class="number">0</span>)&#123;</span><br><span class="line">      s = target;</span><br><span class="line">  &#125;</span><br><span class="line">  self._rotate(s);</span><br><span class="line">  <span class="keyword">if</span>(v0 &lt;= <span class="number">0</span>)&#123;</span><br><span class="line">      <span class="comment">// 增加回调函数用于监听</span></span><br><span class="line">      self.trigger(<span class="string">"rotated"</span>);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 循环调用</span></span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      self._rotateBase(vt,a,delta,target,s);</span><br><span class="line">  &#125;,delta)</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>这样子我们的转盘就动起来了。</p>
+<ul>
+<li><strong>让转盘服务于服务端</strong></li>
+</ul>
+<p>但是单单动起来是不够的。一般我们做活动的话，抽奖逻辑都是安放在服务端，因此我们一开始是不确定结果。但是用户按了之后我们不能不让他转。所以我们要设计一个不断转动的函数。对他进行处理。</p>
+<p>一般写法就是我们直接让他匀速不断运动，然后收到结果之后，把timeout去掉，进入我们知道结果的滚动进行展示。</p>
+<p>但是这样子会有一个问题。因为你是从头开始转的，你转的那一瞬间所在位置可能会差别比较大。因此会造成用户看上去转盘速度忽然变化了的错觉。</p>
+<p>那怎么办呢。最终我采取了这个办法。</p>
+<p>我们根据用户设定的转动时间，算出最大的转动速度。然后让转盘一直保持这个速度进行匀速转动。当我们得知结果的时候，设定这个匀速运动的速度为初速度。计算出所需要的加速度，进行减速运动。而重要的是，我们要让他在大概恢复原位的时候进行切换。</p>
+<p>因此我把匀速运动的函数这么写。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用于服务器没有返回的时候调用进行空转</span></span><br><span class="line">_keepRotate:<span class="function"><span class="keyword">function</span>(<span class="params">v0,delta,s</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">let</span> angle = v0*delta;</span><br><span class="line">  s = s || <span class="number">0</span>;</span><br><span class="line">  s = angle + s;</span><br><span class="line">  self._rotate(s);</span><br><span class="line">  self.rotateId = setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      self._keepRotate(v0,delta,s);</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// 近似回归原位的时候触发回归机制</span></span><br><span class="line">  <span class="keyword">if</span>(~~(s%<span class="number">180</span>/<span class="number">10</span>) == <span class="number">0</span>)&#123;</span><br><span class="line">      self.trigger(<span class="string">"recovery"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>这样子我们就可以让他无缝切换了。</p>
+<ul>
+<li><strong>小细节</strong></li>
+</ul>
+<p>转动的动画加上<code>translateZ(0)</code>。避免浏览器频繁的重置。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">_rotate:<span class="function"><span class="keyword">function</span>(<span class="params">s</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line">  $(self.canvas).css(<span class="string">'-webkit-transform'</span>,<span class="string">'rotate('</span>+s+<span class="string">'deg) translateZ(0)'</span>); </span><br><span class="line">  $(self.canvas).css(<span class="string">'-moz-transform'</span>,<span class="string">'rotate('</span>+s+<span class="string">'deg) translateZ(0)'</span>); </span><br><span class="line">  $(self.canvas).css(<span class="string">'-o-transform'</span>,<span class="string">'rotate('</span>+s+<span class="string">'deg) translateZ(0)'</span>); </span><br><span class="line">  $(self.canvas).css(<span class="string">'transform'</span>,<span class="string">'rotate('</span>+s+<span class="string">'deg) translateZ(0)'</span>); </span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>delta设为16。</p>
+<p>事件还是挺有用的。</p>
+<p>以上就是我的世界过程了。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2016/03/22/bootstrap-datetimepicker-bug/">
   <time datetime="2016-03-22T11:02:25.000Z">
     2016-03-22
@@ -598,62 +682,6 @@ var _hmt = _hmt || [];
 <p>我的想法是，比如在间隔时间内，有N次函数调用，而只有第一个函数会被调用成功，后面的调用我都将他们废弃。间隔结束后，再一次的函数调用被触发。</p>
 <p>代码如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">preventMultyCalls = <span class="keyword">function</span> (func,duration) &#123;</span><br><span class="line">		<span class="built_in">let</span> timeout;</span><br><span class="line">		<span class="built_in">return</span> <span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">			<span class="keyword">if</span>(!timeout)&#123;</span><br><span class="line">				func.apply(this,arguments);</span><br><span class="line">				timeout = <span class="built_in">set</span>Timeout(()=&gt;&#123;</span><br><span class="line">					timeout = null;</span><br><span class="line">				&#125;,duration);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
 <p>这就达到了我的效果了。觉得做这些小的工具函数还是挺好玩的。</p>
-
-    
-  </div>
-  <footer class="end-sep">
-    
-      
-      
-    
-    <div class="clearfix"></div>
-  </footer>
-</article>
-
-
-  
-    <article class="post">
-  <header>
-    
-      <div class="icon"></div>
-      <a href="/2016/02/05/sth-about-formdata-and-promise/">
-  <time datetime="2016-02-05T03:09:36.000Z">
-    2016-02-05
-  </time>
-</a>
-    
-    
-  
-    <h1 class="title"><a href="/2016/02/05/sth-about-formdata-and-promise/">最近的一些技巧记录</a></h1>
-  
-
-  </header>
-  
-  <div class="entry">
-    
-      <p>这篇文章主要是记录一下自己一些常忘掉的点，和最近的一些总结。</p>
-<h1 id="formData">formData</h1><p>formData是一个新增的html5方法，而且在中国的支持度还算可以。大概有83%。不过你要支持IE10之前的产品，那就另当别论了。</p>
-<p>其实这个方法我以前已经多次用过了，但是老是会因为时间隔得长所以忘掉了，这里记录一下，让自己记得比较清楚一点。</p>
-<p>formData的简洁之处在于他可以根据form随时生成可以上传的formData文件，而且也可以自己去append之类的，一般情况下，也不大用得着。但是如果涉及文件上传的话，还是十分方便的。</p>
-<p>简单举个栗子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;form class=<span class="string">"upload-terms-form"</span>&gt;</span><br><span class="line">	&lt;input <span class="built_in">type</span>=<span class="string">"file"</span> name=<span class="string">"terms"</span> value=<span class="string">"文件选择"</span>&gt;</span><br><span class="line">	&lt;input <span class="built_in">type</span>=<span class="string">"submit"</span> value=<span class="string">"上传"</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
-<p>有文件上传表单如上，如果我们不想让页面刷新而直接上传文件呢。那么我们一般会监听submit，然后用ajax的方法进行上传，并且在末尾取消默认的事件。</p>
-<p>所以难点在于怎么去ajax一个文件，以往jQuery有许多插件做这个事，但是现在有HTML5的formData属性，做起来还是十分方便。直接用form生成一个formData即可上传。</p>
-<p>代码如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// 绑定form，并且监听submit事件</span><br><span class="line">$(document).delegate(<span class="string">"form.upload-terms-form"</span>,<span class="string">"submit"</span>,<span class="keyword">function</span>(evt)&#123;</span><br><span class="line">	$.ajax( &#123;</span><br><span class="line">		url: <span class="string">'some url you want to go'</span>,</span><br><span class="line">	   <span class="built_in">type</span>: <span class="string">'POST'</span>,</span><br><span class="line">	   data: new FormData( this ),//从form上面新建一个formData</span><br><span class="line">	   processData: <span class="literal">false</span>,</span><br><span class="line">	   contentType: <span class="literal">false</span>,</span><br><span class="line">	   success:(response)=&gt;&#123;</span><br><span class="line">	   		// 成功的时候的响应</span><br><span class="line">	   &#125;,</span><br><span class="line">	   beforeSend:()=&gt;&#123;</span><br><span class="line">	    	// 上传前要做些什么，比如可以增加一个上传状态或者进度条</span><br><span class="line">	   &#125;,</span><br><span class="line">	   error:()=&gt;&#123;</span><br><span class="line">	   		// 上传失败的响应</span><br><span class="line">	   &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    evt.preventDefault();//禁止掉原生的submit事件</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>总而言之，这个方法还是比较常用并且比较简单地。</p>
-<h1 id="函数式编程小结——结合map和promise-all简化多个请求流程">函数式编程小结——结合map和promise.all简化多个请求流程</h1><p>这一段读起来可能有点扯，但是也是纠正我以前一个不好的习惯。</p>
-<p>不知道你有没有这么一种场景，就是你多个数据，他们要调用异步的方法进行处理，处理完毕后你需要返回出去。那么这个我以前是怎么写的呢？</p>
-<p>还是比较简单地，我们只需要增加一个变量进行记录就好了。请看代码</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">var data = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>];</span><br><span class="line">var count = <span class="number">0</span>;</span><br><span class="line">data.forEach(<span class="keyword">function</span>(number)&#123;</span><br><span class="line">	handle(number,<span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">		// i am a callback <span class="keyword">function</span></span><br><span class="line">		count++;</span><br><span class="line">		<span class="keyword">if</span>(count == data.length)&#123;</span><br><span class="line">			console.log(<span class="string">"success"</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>这种代码的问题首先是，不能知道部分失败的，因为如果你失败的也不增加这个变量，你不会返回一个成功的结果。</p>
-<p>第二个是可读性差，理解得不好，如果要增加各种监听写起来也不方便。</p>
-<p>然而现在我们有promise函数了。promise.all可以很好地处理这种并发异步的问题，让你知道成功还是部分失败。失败的点在哪里。所以我们可以生成一个函数集让他去进行处理。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> data = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>];</span><br><span class="line">//生成一个处理列表</span><br><span class="line"><span class="built_in">let</span> tasks = data.map(number=&gt;&#123;</span><br><span class="line">	<span class="built_in">return</span> new Promise(<span class="keyword">function</span>(resolve,reject)&#123;</span><br><span class="line">		//可以分别进行成功和失败返回的处理</span><br><span class="line">		promiseHandle(number).then(success=&gt;&#123;</span><br><span class="line">			resolve();</span><br><span class="line">		&#125;,fail=&gt;&#123;</span><br><span class="line">			reject(number);</span><br><span class="line">		&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br><span class="line">Promise.all(tasks).then(success=&gt;&#123;</span><br><span class="line">	console.log(<span class="string">"success"</span>);</span><br><span class="line">	//全部成功后的处理</span><br><span class="line">&#125;,fail=&gt;&#123;</span><br><span class="line">	console.log(<span class="string">"fail at "</span>,fail);</span><br><span class="line">	//可以知晓哪个部分是失败的</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>用这个小技巧，可以令我们的代码更加可读和易于处理。</p>
-<p>然后为什么说是函数式编程呢。</p>
-<p>因为这里我们将处理过程抽取了出来，然后返回一个处理的东西用于执行。</p>
-<p>我觉得比以前过程式好，也便于修改。啊哈哈哈。</p>
 
     
   </div>
