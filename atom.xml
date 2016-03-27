@@ -4,7 +4,7 @@
   <subtitle><![CDATA[李猜猜，被折磨得死去活来的菜鸟]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-03-26T06:00:49.698Z</updated>
+  <updated>2016-03-27T10:27:35.110Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,112 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[尝试一下素描化]]></title>
+    <link href="http://yoursite.com/2016/03/27/create-a-sketch/"/>
+    <id>http://yoursite.com/2016/03/27/create-a-sketch/</id>
+    <published>2016-03-27T09:09:56.000Z</published>
+    <updated>2016-03-27T10:27:35.110Z</updated>
+    <content type="html"><![CDATA[<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/zhangzhe" alt="先上一发效果图"></p>
+<p>如果你只是为了看图的话，直接向下拉就好。</p>
+<p>没错，还是继续讨论ascii化图片的问题。上周我尝试了通过<a href="http://blog.toxicjohann.com/2016/03/20/adjust-contrast-problem/" target="_blank" rel="external">调整对比度</a>来让图片更加易看。但是我们可以看到，效果还不能达到我们的理想状态。我们尝试制造出来的ascii化代码图，应该是只关注于边框，而尽可能忽略大片颜色的细微变化。这让我想起了以前绘画中的描边技术，当然再进一步就是素描。</p>
+<p>那么我们知道<a href="http://jingyan.baidu.com/article/59a015e38c4533f794886521.html" target="_blank" rel="external">在photoshop中进行素描化</a>是十分简单的。总结起来就是以下几步：</p>
+<blockquote>
+<ol>
+<li>灰度化</li>
+<li>反色（反相）</li>
+<li>高斯模糊</li>
+<li>颜色减淡</li>
+</ol>
+</blockquote>
+<p>这个听起来还是比较简单的。不过为什么要这么做呢。所以我们先来分析一下这么做的理由。</p>
+<ul>
+<li><strong>理论环节（不喜欢数学的可以跳过）</strong></li>
+</ul>
+<p>灰度化还是很容理解的。图片转化为素描必然是只有黑白的。那么灰度化是很正常的。</p>
+<p>然后反色目测是用来叠加的，因为我们会用到颜色减淡这个方法。</p>
+<p>不过如果我们理解不了颜色减淡叠加，那么我们就不能理解为什么要用高斯模糊和进行反色了。</p>
+<p>所以我们先看颜色减淡叠加的公式。设基色为a，叠加色为b,结果为c</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c = min(a + a*b/(<span class="number">255</span>-b),<span class="number">255</span>)</span><br></pre></td></tr></table></figure>
+<p>根据公式我们可以推测到。</p>
+<ul>
+<li>如果b为黑色，即b=0,那么c=a。</li>
+<li>如果b为白色，即b=255，那么c=255。</li>
+<li>如果b偏向于黑色，即b&lt;128，那么c&lt;2a</li>
+<li>如果b偏向于白色，即b&gt;128，那么c&gt;2a</li>
+</ul>
+<p>分析了下情况，我发现这个对于我没什么卵用。。。那么我就先去掉高斯模糊，单纯考虑反相之后进行颜色减淡处理会得到什么。</p>
+<p>设基色为a，则叠加色为255-a。则有如下推导</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">c = min(a + a*b/(<span class="number">255</span>-b),<span class="number">255</span>)</span><br><span class="line">  = min(a + a*(<span class="number">255</span><span class="operator">-a</span>)/(<span class="number">255</span>-<span class="number">255</span>+a),<span class="number">255</span>)</span><br><span class="line">  = min(a + <span class="number">255</span><span class="operator">-a</span>,<span class="number">255</span>)</span><br><span class="line">  = <span class="number">255</span></span><br></pre></td></tr></table></figure>
+<p>也就是说，与反相后的图片叠加，得出来只是一片白色。不过这个貌似刚好得出来255。有点玄机。所以这个高斯处理就很重要了。</p>
+<p>这个时候，我们假设高斯处理带来的变化是d（delta）。即有如下推导</p>
+<p>设a为基色，则叠加色为b=a+d。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">c = min(a + a*b/(<span class="number">255</span>-b),<span class="number">255</span>)</span><br><span class="line">  = min(a + a*(<span class="number">255</span><span class="operator">-a</span><span class="operator">-d</span>)/(<span class="number">255</span>-<span class="number">255</span>+a+d),<span class="number">255</span>)</span><br><span class="line">  = min(a + a*(<span class="number">255</span><span class="operator">-a</span><span class="operator">-d</span>)/(a+d),<span class="number">255</span>)</span><br><span class="line">  = min(b<span class="operator">-d</span> + (b<span class="operator">-d</span>)*(<span class="number">255</span>-b)/b,<span class="number">255</span>)</span><br><span class="line">  = min(b<span class="operator">-d</span> + (<span class="number">255</span>*b-<span class="number">255</span>*d-b*b+b*d)/b,<span class="number">255</span>)</span><br><span class="line">  = min(b - d + <span class="number">255</span> - <span class="number">255</span>*d/b - b + d,<span class="number">255</span>)</span><br><span class="line">  = min(<span class="number">255</span>-<span class="number">255</span>*(d/b),<span class="number">255</span>)</span><br></pre></td></tr></table></figure>
+<p>这时候我们就可以很明显看出来了。假如d存在且大于0，则得出来的颜色偏向黑色，否则为白色。</p>
+<p>这个结果很重要，那就是以为这，我们可以通过delta来留下我们所需要的颜色。即，边框。</p>
+<p>这个时候我们就可以来研究下<a href="http://www.ruanyifeng.com/blog/2012/11/gaussian_blur.html" target="_blank" rel="external">高斯模糊</a>了。</p>
+<p>这个解释我就不详细说了，因为真的挺长。所以我就简单解释为，高斯模糊就是把周边数据与自身作了均值处理。</p>
+<p>这个对于我们获取边框还是挺有用的。上图。我们引入一个简单的方块，他的底色是白色。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/1sketch.png" alt="高斯模糊前样例"></p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/7.pic.jpg" alt="灰度后"></p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/8.pic.jpg" alt="模糊后"></p>
+<p>我们可以推测得出，处于大色块中间的像素点，因为他附近的色块与其相同，所以他的颜色没有变化。</p>
+<p>而处于色块交界处的点，由于两边的像素点不一样，所以造成了差异。因此可以算出delta。</p>
+<p>这样子在我们进行色块叠加的时候，这种颜色因此留了下来，也就是我们需要的边框了。而其他大色块，则成为了留白。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/6.pic.jpg" alt="素描化的色块"></p>
+<p>所以这就是素描滤镜的原理。</p>
+<ul>
+<li><strong>代码实现</strong></li>
+</ul>
+<p>灰度化上次已经说过了，这次就不说了。</p>
+<p><strong><em>反色</em></strong></p>
+<p>直接获得像素点，然后将用255减去色值即可。</p>
+<p><strong><em>颜色减淡</em></strong></p>
+<p>按照公式代入就好</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="built_in">Math</span>.min((each+(each*b[index])/(<span class="number">255</span>-b[index])),<span class="number">255</span>);</span><br></pre></td></tr></table></figure>
+<p><strong><em>高斯模糊</em></strong></p>
+<p>有兴趣的去看看样例，这里我就直接说鸟。</p>
+<p>首先，我们要决定一下究竟用<a href="http://blog.csdn.net/markl22222/article/details/10313565" target="_blank" rel="external">两次一维高斯模糊还是一次二维高斯模糊好</a>，三次均值的快速高斯模糊这里我暂且不讨论。有兴趣可以看看。效果也是一样的。</p>
+<p>设循环一次图像为n（像素点个数），循环高斯模糊半径为r。则有</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">两次一维高斯，循环次数</span><br><span class="line"><span class="number">2</span>*n*r</span><br><span class="line">一次二维高斯,循环次数</span><br><span class="line">n*r*r</span><br></pre></td></tr></table></figure>
+<p>显然，我们两次一维高斯模糊更加划算。</p>
+<p>首先计算出高斯矩阵</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._getOneGaussianMatrix = (radius,sigma)=&gt;&#123;</span><br><span class="line">    <span class="keyword">let</span> gaussMatrix = [];</span><br><span class="line">    <span class="keyword">let</span> gaussSum = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 计算矩阵计算系数</span></span><br><span class="line">    <span class="keyword">let</span> a = <span class="number">1</span>/(<span class="built_in">Math</span>.sqrt(<span class="number">2</span>*<span class="built_in">Math</span>.PI)*sigma);</span><br><span class="line">    <span class="keyword">let</span> b = -<span class="number">1</span>/(<span class="number">2</span>*sigma*sigma);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成高斯矩阵</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">let</span> x = -radius;x&lt;=radius;x++)&#123;</span><br><span class="line">        <span class="keyword">let</span> tmp = a*<span class="built_in">Math</span>.exp(b*x*x);</span><br><span class="line">        gaussMatrix.push(tmp);</span><br><span class="line">        gaussSum = gaussSum + tmp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 归一化，确保高斯矩阵的最终的和值在0/1之间</span></span><br><span class="line"></span><br><span class="line">    gaussMatrix = gaussMatrix.map(each=&gt;&#123;</span><br><span class="line">        <span class="keyword">return</span> each/gaussSum;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        matrix:gaussMatrix,</span><br><span class="line">        sum:gaussSum</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>然后用两次一维高斯模糊处理imageData</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._oneGaussianOp = (imageData,width,height,radius,sigma,alpha)=&gt;&#123;</span><br><span class="line">    <span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">let</span> gauss = self._getOneGaussianMatrix(radius,sigma);</span><br><span class="line">    <span class="keyword">let</span> length = imageData.length;</span><br><span class="line">    imageData = <span class="keyword">this</span>._testArrayMap(imageData);</span><br><span class="line">    <span class="comment">// x方向进行高斯运算</span></span><br><span class="line">    <span class="keyword">let</span> ximage= imageData.map((each,index)=&gt;&#123;</span><br><span class="line">        <span class="comment">// 获取各个位置</span></span><br><span class="line">        <span class="keyword">let</span> pos = index%<span class="number">4</span>;</span><br><span class="line">        <span class="keyword">let</span> hei = ~~(index/<span class="number">4</span>/width);</span><br><span class="line">        <span class="keyword">let</span> wid = ~~(index/<span class="number">4</span>%width);</span><br><span class="line">        <span class="comment">// 不处理透明度</span></span><br><span class="line">        <span class="keyword">if</span>(!alpha &amp;&amp; index%<span class="number">4</span> == <span class="number">3</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> each;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">let</span> sum=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">let</span> r=-radius;r&lt;=radius;r++)&#123;</span><br><span class="line">            <span class="keyword">let</span> data  = imageData[((width+wid+r)%width+width*(hei))*<span class="number">4</span>+pos];</span><br><span class="line">            <span class="keyword">let</span> gdata = gauss.matrix[r+radius]*data; </span><br><span class="line">            sum = sum+gdata;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sum;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">// y方向进行高斯运算，在X处理后</span></span><br><span class="line">    <span class="keyword">let</span> yimage= ximage.map((each,index)=&gt;&#123;</span><br><span class="line">        <span class="keyword">let</span> pos = index%<span class="number">4</span>;</span><br><span class="line">        <span class="keyword">let</span> hei = ~~(index/<span class="number">4</span>/width);</span><br><span class="line">        <span class="keyword">let</span> wid = ~~(index/<span class="number">4</span>%width);</span><br><span class="line">        <span class="comment">// 不处理透明度</span></span><br><span class="line">        <span class="keyword">if</span>(!alpha &amp;&amp; index%<span class="number">4</span> == <span class="number">3</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> each;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">let</span> sum=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">let</span> r=-radius;r&lt;=radius;r++)&#123;</span><br><span class="line">            <span class="keyword">let</span> data  = ximage[((height+hei+r)%height*width+wid)*<span class="number">4</span>+pos];</span><br><span class="line">            <span class="keyword">let</span> gdata = gauss.matrix[r+radius]*data; </span><br><span class="line">            sum = sum+gdata;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sum;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> yimage;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>这里主要是定位每个位置要注意下。</p>
+<p>然后我们就完成了高斯模糊处理。</p>
+<p>这个时候我们就可以完成素描滤镜了。</p>
+<ul>
+<li><strong>几个小细节</strong></li>
+</ul>
+<p>Uint8ClampedArray本质上是一个用object封装成的array。所以在某些浏览器上（没错说的就是iPhone上面的safari），像map、reduce、from这种方法，很可能没有。这时候我们要注意做特性检测，然后转化成Array进行处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._testArrayMap = (arr)=&gt;&#123;</span><br><span class="line">    <span class="keyword">if</span>(!arr.map)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Array</span>.prototype.slice.call(arr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">&#125;,</span><br><span class="line"><span class="keyword">this</span>._testArrayReduce = (arr)=&gt;&#123;</span><br><span class="line">    <span class="keyword">if</span>(!arr.reduce)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Array</span>.prototype.slice.call(arr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">this</span>._generateUint8ClampedArray = arr=&gt;&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span>._isUint8ClampedArray(arr))&#123;</span><br><span class="line">        <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">Array</span>.isArray(arr))&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"could only generate Uint8ClampedArray from an array"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 特性判断</span></span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">Uint8ClampedArray</span>.from)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Uint8ClampedArray</span>(arr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Uint8ClampedArray</span>.from(arr);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>貌似安卓的微信浏览器里用的不是Uint8ClampedArray，是CanvasPixelArray对象。然后因为我这个只是自己玩玩。。所以我就没有管。所以部分安卓可能不能用微信访问<a href="http://wechat.toxicjohann.com/home/index/ascii" target="_blank" rel="external">体验地址</a>。可以用chrome或者其他浏览器试试。</p>
+<p>canvas绘制和数据处理的时候貌似占用了整个进程，因此我的处理提示并没有打出来。这个以后我应该会尝试用Web Workers去进行解决。但是这次没有时间暂且不用。</p>
+<p>二次一维高斯模糊做出来的所花的时间对于一个800*500的图像大概200ms+。但是我这里整个图片处理，因为要经历很多其他步骤，因此有较多循环。所以我可以看到一个像素化处理大概要用1200ms左右，在电脑上，手机上由于本身处理不大好，而且数组不断改变，所花时间就更长了。大概会有几十秒的延迟。</p>
+<p>这个主要是第一我有多次循环，例如取得反色图像之类的这种其实我是可以合在一个循环中做完的。</p>
+<p>不过由于只是造轮子练手，而且时间也不算充足。这次我就先不继续优化了。所以大家觉得慢不要打我。</p>
+<p>体验网址还是<a href="http://wechat.toxicjohann.com/home/index/ascii" target="_blank" rel="external">老地方</a>。我调了一下适配，手机上应该会比以前好按点。</p>
+<ul>
+<li><strong>我知道你们是进来看图的</strong></li>
+</ul>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/4.pic.jpg" alt="见的多了"></p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/9.pic.jpg" alt="谈笑风生"></p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/zhangzhe" alt="一颗赛艇"></p>
+<p>当然模特还是用回原来的好</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/3.pic.jpg" alt="滋不滋磁"></p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/10.pic.jpg" alt="搞个大新闻"></p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/2.pic_hd.jpg" alt="批判一番"></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/zhangzhe" alt="先上一发效果图"></p>
+<p>如果你只是为了看图的话，直接向下拉就好。</p>
+<p>没错，还是继续讨论ascii化图片的问题。上周我尝试了通过]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[编写一个转盘插件]]></title>
@@ -925,46 +1031,6 @@
 ]]></content>
     <summary type="html">
     <![CDATA[<h1 id="为什么想开发这个东西">为什么想开发这个东西</h1><p>最近喜欢上了d3，真是一个超级棒的东西。通过简单容易的绘制，可以弄出很多十分酷炫的效果。大家可以点击<a href="http://toxicjohann.com:8360/home/funnymove"]]>
-    </summary>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[一个网页截图的功能尝试]]></title>
-    <link href="http://yoursite.com/2015/11/05/use-phantomjs-to-screenshot/"/>
-    <id>http://yoursite.com/2015/11/05/use-phantomjs-to-screenshot/</id>
-    <published>2015-11-05T01:12:36.000Z</published>
-    <updated>2015-11-05T08:09:44.052Z</updated>
-    <content type="html"><![CDATA[<p>这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——<a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a>。</p>
-<p>首先介绍一下phantomjs。phantomjs原理上是一个无头浏览器。就是一个不带界面的浏览器。基于此原因，phantomjs打开网页的速度会快点，而且phantomjs十分多的js API，包括dom元件控制、css、json、canvas、SVG等等。鉴于此，我们可以用phantomjs实现众多自己想要的截图。包括对页面上的某个部分进行截图。也正是基于这个原因，我们可以爬取其他网络，测试自己的网站等等。</p>
-<p>本次的网页截图我只实现了全网截图，可以考虑以后开取图象爬取功能，如google的banner爬取等等。</p>
-<p>安装phantomjs方法有很多，主站上有介绍。<br>例如在windows下就直接下载一个zip包加个环境变量就可以了，十分方便。不过对于linux方面反而没有辣么友好。ORZ。我这次安装的环境是ubuntu14.04。也是相当折腾了一番。</p>
-<p>当然你可以尝试一下<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">apt-get install phantomjs</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">这样做还是比较方便的，不过有一个缺点，版本比较老旧。是<span class="number">1.9</span>.<span class="number">0</span>.</span><br><span class="line"></span><br><span class="line">因此我采取了自己编译，首先确保一下依赖的安装。</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">sudo apt-get install build-essential g++ flex bison gperf ruby perl \</span><br><span class="line">  libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \</span><br><span class="line">  libpng-dev libjpeg-dev python libx11-dev libxext-dev</span><br></pre></td></tr></table></figure></p>
-<p>然后在<a href="http://phantomjs.org/download.html" target="_blank" rel="external">官网</a>下载好源码包。<br>或者在git上直接拉取。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git://github.com/ariya/phantomjs.git</span><br></pre></td></tr></table></figure></p>
-<p>然后直接进入phantomjs运行编译脚本，这里貌似要接一下checkout。不然装下来的会是1.9.0.编译的时间比较长，有接近一个小时。如果是官网拉取得话就不用git checkout了。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> phantomjs</span><br><span class="line">git checkout <span class="number">2.0</span></span><br><span class="line">./build.sh</span><br></pre></td></tr></table></figure>
-<p>但是这样子编译完还是不能直接调用的，如果你只是采用cmd，那么就直接注册一个环境变量就好了。但是假如你和我一样要利用phantomjs-node进行调用，需要将bin中的文件移动到你的/usr/bin中，这样才可以进行调用。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp ./bin/phantomjs /usr/bin</span><br></pre></td></tr></table></figure>
-<p>然后我是用node进行调用，所以我利用了<a href="https://github.com/sgentle/phantomjs-node" target="_blank" rel="external">phantomjs-node插件</a>。npm安装<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install phantom</span><br></pre></td></tr></table></figure></p>
-<p>简单易用。</p>
-<p>辣么调用就十分简单了。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> data=&#123;</span><br><span class="line">	webUrl:<span class="string">'http://wwww.baidu.com'</span>,</span><br><span class="line">	imageName:<span class="string">'test.png'</span></span><br><span class="line"><span class="built_in">let</span> phantom = require(<span class="string">'phantom'</span>);</span><br><span class="line">phantom.create(<span class="keyword">function</span> (ph) &#123;</span><br><span class="line">        ph.createPage(<span class="keyword">function</span> (page) &#123;</span><br><span class="line">            page.open(data.webUrl, <span class="keyword">function</span> (status) &#123;</span><br><span class="line">            <span class="built_in">set</span>Timeout(<span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">                page.render(imageName,<span class="keyword">function</span>(error)&#123;</span><br><span class="line">                  <span class="keyword">if</span>(error)&#123;</span><br><span class="line">                    console.log(error);</span><br><span class="line">                  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                  &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">                ph.exit();</span><br><span class="line">            &#125;,<span class="number">1000</span>);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure></p>
-<p>我的调用方法大概如上,有几个点要解释下。</p>
-<ul>
-<li>打开的url必须是完整的url网址。</li>
-<li>存储可以尝试png,jpg,pdf。gif尚未试验完整。</li>
-<li>延迟1秒截图是因为纵然页面加载完毕，但是可能渲染还是不好的，所以需要进行延迟。</li>
-</ul>
-<p>那么问题就产生了，这样子后台处理的时间较长，如何让前台拉取数据。方法有以下：</p>
-<ul>
-<li>傻瓜版：前台利用setTimeout延迟拉取数据。</li>
-<li>实用版：websocket</li>
-</ul>
-<p>thinkjs中的<a href="https://thinkjs.org/zh-CN/doc/2.0/adapter_websocket.html" target="_blank" rel="external">websocket</a>已经包装好，十分好用。欢迎大家尝试。反正我用了十分好玩。</p>
-<p>现在这个服务我已经开始提供了，大家可以<a href="http://toxicjohann.com:8360/home/screenshot" target="_blank" rel="external">点击这里</a>进行试用。当然还有很多可以改进的地方。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>这几天想尝试一下制作截图功能，在尝试中摸索到了一个比较好用的服务端截图工具——<a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a>。</p>
-<p>首先介绍一下phantom]]>
     </summary>
     
   </entry>
