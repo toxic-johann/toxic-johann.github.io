@@ -76,6 +76,80 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2016/04/09/talk-about-zcfy/">
+  <time datetime="2016-04-09T05:43:45.000Z">
+    2016-04-09
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/04/09/talk-about-zcfy/">众成翻译术语辅助模块分析</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>这篇文章是李老师让我写的在众成翻译里我所负责开发的部分。众成翻译中的术语模块是由我和玉文两人共同完成的。所花时间也不算太长，在年前完成的，大概工期好像是两周吧。因为当时候也有其他工作。个人觉得难度也不大.后端使用的是thinkjs2.0，前端用webpack进行babel编译等，开发上可以使用很多es6的特性，做起来也是令人愉悦的。</p>
+<p>因为使用的是2.0.16版本，在开发的自动编译上还是有一点小瑕疵，导致当时我需要开3个iterm来进行操作，有点不便，不过这个问题在2.1版本中已经极大的改观。</p>
+<p>术语模块主要分为几个部分——爬取、导入、搜索、展示。下面简单介绍一下爬取、导入、搜索三个部分。</p>
+<ul>
+<li><strong>爬取</strong></li>
+</ul>
+<p>那么既然是术语的话，我们肯定需要一些官方资料，但是这种这么专业的资料也不会天然就构建好API让你取。所以我们当时讨论了以下的做法。</p>
+<ol>
+<li>对官方网站进行爬取，将资料搬到本地数据库上，自建API。</li>
+<li>对官方网站进行拆解，每次查询对其进行调用获取资料。</li>
+<li>对官方网站进行拆解，第一次查询的时候访问获取资料，并把资料保存下来，以后进行本地获取。</li>
+</ol>
+<p>三种方法各有优劣，第一种方法数据是拿到了，但是也增加了本地服务的压力，而且一些术语的更新可能会不及时。第二种方法转嫁了本地的压力，但是会依赖于第三方，万一对方改规则我们容易得不偿失。第三种方法是比较稳妥的方法。</p>
+<p>不过因为术语的变化并不会特别大，而这种官方网站的规则也不会频繁更改，而且经检测感觉还是比较稳定。所以我们选择了前两种方法。</p>
+<ol>
+<li>少量的资料我们进行直接爬取，保证了我们的本地数据库里资料的健全性。</li>
+<li>我们调用了<a href="http://history.cnctst.cn/" target="_blank" rel="external">中国名词委的查询接口</a>，获得较为官方的数据。</li>
+</ol>
+<p>那么这种爬取还是比较简单的。因为所有的资料都在页面上，所以我们直接用request获得页面，然后对页面进行正则获取需要的资料即可。又或者用cheerio对页面进行构建而取出所需资料。</p>
+<p>我们直接观看玉文所编写的代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">mcw:text =&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve,reject</span>)</span>&#123;</span><br><span class="line">        request(&#123;</span><br><span class="line">            url: <span class="string">'http://www.cnctst.cn/Search/SingleResultPager'</span>,</span><br><span class="line">            method: <span class="string">'POST'</span>,</span><br><span class="line">            headers: &#123;</span><br><span class="line">                <span class="string">'X-Requested-With'</span>: <span class="string">'XMLHttpRequest'</span></span><br><span class="line">            &#125;,</span><br><span class="line">            formData: &#123;</span><br><span class="line">                handler: <span class="string">''</span>,</span><br><span class="line">                queryModel: <span class="string">'0'</span>,</span><br><span class="line">                queryWord: text,</span><br><span class="line">                orderIdx: <span class="string">'0'</span>,</span><br><span class="line">                pIdx: <span class="string">'0'</span>,</span><br><span class="line">                pSize: <span class="string">'10'</span>,</span><br><span class="line">                codes: <span class="string">'GB'</span>,</span><br><span class="line">                isfull: <span class="string">'true'</span>,</span><br><span class="line">                pCode: <span class="string">'GB'</span>,</span><br><span class="line">                viewIdx: <span class="string">'1'</span></span><br><span class="line">            &#125;,</span><br><span class="line">            encoding: <span class="literal">null</span></span><br><span class="line">        &#125;, <span class="function"><span class="keyword">function</span> (<span class="params">err, res, body</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                reject(err);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">var</span> $ = cheerio.load(body.toString(), &#123;</span><br><span class="line">            normalizeWhitespace: <span class="literal">true</span>,</span><br><span class="line">            xmlMode: <span class="literal">false</span>,</span><br><span class="line">            decodeEntities: <span class="literal">false</span></span><br><span class="line">            &#125;);</span><br><span class="line">            <span class="keyword">var</span> response = [];</span><br><span class="line">            $(<span class="string">'#itemgrid'</span>).find(<span class="string">'tr'</span>).each(<span class="function"><span class="keyword">function</span>(<span class="params">i, item</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">var</span> td = $(item).find(<span class="string">'.qd_descg'</span>);</span><br><span class="line">                <span class="keyword">if</span> (td.length) &#123;</span><br><span class="line">                    <span class="keyword">var</span> one = &#123;&#125;;</span><br><span class="line">                    one.zh_Hans = td.eq(<span class="number">0</span>).text();</span><br><span class="line">                    one.subject = td.eq(<span class="number">2</span>).text();</span><br><span class="line">                    response.push(one);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            resolve(response);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>请求接口，获得返回数据，然后用cheerio.load进行构建，挑出tr获得结果。</p>
+<ul>
+<li><strong>导入</strong></li>
+</ul>
+<p>导入是允许客户用CSV格式文件导入自己的术语。这个我们直接采用csvtojson进行处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> Converter=<span class="built_in">require</span>(<span class="string">"csvtojson"</span>).Converter;</span><br><span class="line"><span class="comment">//利用csv批量上传术语</span></span><br><span class="line"><span class="keyword">async</span> uploadtermAction()&#123;</span><br><span class="line">  <span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">let</span> files = <span class="keyword">this</span>.file();</span><br><span class="line">  <span class="keyword">if</span>(files.terms.headers[<span class="string">"content-type"</span>] != <span class="string">'text/csv'</span>)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.fail(zcret.fail(<span class="string">"FILE_TYPE_ERROR"</span>))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">let</span> csvConverter=<span class="keyword">new</span> Converter(&#123;&#125;);</span><br><span class="line">  <span class="keyword">let</span> uid = <span class="keyword">this</span>.user.id;</span><br><span class="line">  <span class="comment">// 文件解析完毕进行处理</span></span><br><span class="line">  csvConverter.on(<span class="string">"end_parsed"</span>,<span class="keyword">async</span> terms=&gt;&#123;</span><br><span class="line">    <span class="keyword">let</span> tasks = terms.map(term=&gt;&#123;</span><br><span class="line">        <span class="keyword">let</span> subject = global.zcterm.getCateId(term.subject || term[<span class="string">"学科"</span>] || term[<span class="string">"分类"</span>]);</span><br><span class="line">        <span class="keyword">let</span> tmp = &#123;</span><br><span class="line">          user_id:uid,</span><br><span class="line">          en:term.en || term[<span class="string">"英文"</span>] || term[<span class="string">"原文"</span>] || <span class="string">""</span>,</span><br><span class="line">          zh_Hans:term.zh_Hans || term[<span class="string">"中文"</span>] || term[<span class="string">"译文"</span>] || <span class="string">""</span>,</span><br><span class="line">          pos:term.pos || term[<span class="string">"词性"</span>] || <span class="string">""</span>,</span><br><span class="line">          description:term.description || term[<span class="string">"描述"</span>] || term[<span class="string">"备注"</span>] || <span class="string">""</span>,</span><br><span class="line">          subject:subject || <span class="number">701</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> tmp;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">let</span> insertIds = <span class="keyword">await</span> self.model(<span class="string">"term"</span>).addManyTerms(tasks);</span><br><span class="line">    <span class="keyword">if</span>(think.isArray(insertIds) &amp;&amp; insertIds.length == tasks.length)&#123;</span><br><span class="line">      <span class="keyword">return</span> self.success()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> self.fail(zcret.fail(<span class="string">"DEFAULT"</span>))</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 打开文件进行解析</span></span><br><span class="line">  fs.createReadStream(files.terms.path).pipe(csvConverter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个插件对于正常的纯文字的csv文件，还是十分适用的。但是如果你的csv文件里会带上一些诸如换行符，HTML标签之类的奇奇怪怪的东西。建议慎用。或者在使用前对文本进行适当处理。</p>
+<ul>
+<li><strong>搜索</strong></li>
+</ul>
+<p>查找术语我们直接用like，现在术语量还是比较小，而且我们支持用户输入<code>*</code>和<code>?</code>进行模糊搜索。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> getTerm(text,uid)&#123;</span><br><span class="line">    text = text.replace(<span class="regexp">/\*/g</span>, <span class="string">'%'</span>);</span><br><span class="line">    text = text.replace(<span class="regexp">/\?/g</span>, <span class="string">'_'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> term = <span class="keyword">await</span> <span class="keyword">this</span>.where(&#123;</span><br><span class="line">        user_id: [<span class="string">'in'</span>, uid],</span><br><span class="line">        en: [<span class="string">'like'</span>, text]</span><br><span class="line">    &#125;).select();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> term;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>众所周知，like的查询比较慢，而且如果使用方式不对，会无法使用索引优化。</p>
+<p>其实这样的搜索方式，在数量比较小的时候，影响还是不会很大。</p>
+<p>但是在数量大而且经常使用后，我建议还是采取有索引优化的like查询方式。如仅支持首字母是正确的模糊查询等等。这个以后再细谈。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">getAppsByName:<span class="function"><span class="keyword">function</span>(<span class="params">name,page</span>)</span>&#123;</span><br><span class="line">    page = page || <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.getAppsWithUserByCond(&#123;app_name:[<span class="string">"like"</span>,name+<span class="string">"%"</span>]&#125;,page,<span class="string">'app.updated_at desc'</span>);</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>结语</strong></li>
+</ul>
+<p>总体来说，简单架起一个术语辅助功能的难度并不是很大。但是在日后的维护与优化上还是要根据需求作出适当的努力。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2016/03/27/create-a-sketch/">
   <time datetime="2016-03-27T09:09:56.000Z">
     2016-03-27
@@ -693,72 +767,6 @@ var _hmt = _hmt || [];
 <p>所以难度不大。不过在novajs上面template-repeat绑定元素监听不怎么可行，所以要自己加个代理监听。总体来说还是达成了效果。</p>
 <p>另外最近在自己的一个项目里尝试使用了webpack，发现babel-loader没有生效，查明后发现是babel6采用了插件处理。配置上必须改成如下，添加preset</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">module: &#123;</span><br><span class="line">        loaders: [</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="built_in">test</span>: /\.js$/,</span><br><span class="line">              exclude: /(node_modules|bower_components)/,</span><br><span class="line">              loader: <span class="string">'babel'</span>,</span><br><span class="line">              query: &#123;</span><br><span class="line">                    presets: [<span class="string">'es2015'</span>]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br></pre></td></tr></table></figure>
-
-    
-  </div>
-  <footer class="end-sep">
-    
-      
-      
-    
-    <div class="clearfix"></div>
-  </footer>
-</article>
-
-
-  
-    <article class="post">
-  <header>
-    
-      <div class="icon"></div>
-      <a href="/2016/02/07/talk-about-three-door/">
-  <time datetime="2016-02-07T07:30:22.000Z">
-    2016-02-07
-  </time>
-</a>
-    
-    
-  
-    <h1 class="title"><a href="/2016/02/07/talk-about-three-door/">三门问题</a></h1>
-  
-
-  </header>
-  
-  <div class="entry">
-    
-      <p>昨天和同学外出叙旧，喝得比较醉。然后看到了一个帖子说到三门问题。</p>
-<p>三门问题是一个挺有趣的问题，其实我昨天已经说了一些关键点，不过今天还是来这里进行详细的讨论。</p>
-<p>我的问题描述摘自<a href="http://baike.baidu.com/view/68669.htm" target="_blank" rel="external">百度百科</a></p>
-<blockquote>
-<p>「假设你正在参加一个游戏节目，你被要求在三扇门中选择一扇：其中一扇后面有一辆车；其余两扇后面则是山羊。你选择了一道门，假设是一号门，然后知道门后面有什么的主持人，开启了另一扇后面有山羊的门，假设是三号门。他然后问你：“你想选择二号门吗？”转换你的选择对你来说是一种优势吗？」</p>
-</blockquote>
-<p>首先，让我们作一个最简单的假设。你只是从三扇门上面选择，选择就开给你看。那么你选中车的几率是1/3。</p>
-<p>接下来，我们再作另一个假设，你从三扇门里面选择，主持人打开一扇门，门后是羊，而你不改选，你选中车的几率依旧是1/3。</p>
-<p>这个结果还是很好理解的，因为无论主持人做了什么，对你的选择没有任何影响。</p>
-<p>OK，接下来才是最大的问题，如果你改选呢。</p>
-<p>我们只讨论改选下你选中的概率。</p>
-<p>你选中了1号门，现已知3号门为羊，那2号门后面会是什么？</p>
-<p>如果一号门后面是车，则二号门后面为羊。</p>
-<p>如果一号门后面是羊，二号门后面则为车。</p>
-<p>所以二号门为车的几率，即为一号门为羊的几率。</p>
-<p>所以此时，如果你改选二号门，你获得车的几率为2/3。显然改选更有利。</p>
-<p>为什么会产生这种奇怪的变化呢？因为概率是依据实际条件得出的，而此时一号门和二号门之间选择的条件已经明显改变了。</p>
-<p>就这样而已。。。</p>
-<p>如果这样子，我们也不能理解的话，我们只需要作一个简单的穷举.</p>
-<p>穷举就是要了解到出现这种情况的时候你有多少选择。</p>
-<p>标记三个门分别为d1，d2，d3，三个物件为c0,g1,g2则对应列表如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">n d1 d2 d3</span><br><span class="line">----------</span><br><span class="line"><span class="number">1</span> c0 g1 g2</span><br><span class="line"><span class="number">2</span> c0 g2 g1</span><br><span class="line"><span class="number">3</span> g1 c0 g2</span><br><span class="line"><span class="number">4</span> g2 c0 g1</span><br><span class="line"><span class="number">5</span> g1 g2 c0</span><br><span class="line"><span class="number">6</span> g2 g1 c0</span><br></pre></td></tr></table></figure>
-<p>针对这六种可能性，都是1/6。</p>
-<p>现在我们模拟问题的现场，若你选择d1,而主持人打开的门是d3的几率分别如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">n d1 d2 d3 openD3</span><br><span class="line">-----------------</span><br><span class="line"><span class="number">1</span> c0 g1 g2  <span class="number">1</span>/<span class="number">2</span></span><br><span class="line"><span class="number">2</span> c0 g2 g1  <span class="number">1</span>/<span class="number">2</span></span><br><span class="line"><span class="number">3</span> g1 c0 g2   <span class="number">1</span></span><br><span class="line"><span class="number">4</span> g2 c0 g1   <span class="number">1</span></span><br><span class="line"><span class="number">5</span> g1 g2 c0   <span class="number">0</span></span><br><span class="line"><span class="number">6</span> g2 g1 c0   <span class="number">0</span></span><br></pre></td></tr></table></figure>
-<p>理解这一步还是挺关键的。</p>
-<p>在1,2情况下，因为主持人无论打开二号门，三号门，都能是羊，所以主持人选择三号门的几率是1/2。</p>
-<p>在3,4情况下，主持没有其他选择，必须打开三号门，所以出现的几率是1。</p>
-<p>在5,6情况下，主持人没有任何可能打开三号门，所以这个事件出现的几率为0。</p>
-<p>那么我们现在反推，因为我们已知这个事件发生了，所以这种情况下，门后面的的分布可能则变为</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">n d1 d2 d3 </span><br><span class="line">-----------</span><br><span class="line"><span class="number">1</span> c0 g1 g2  </span><br><span class="line"><span class="number">2</span> c0 g2 g1 </span><br><span class="line"><span class="number">3</span> g1 c0 g2</span><br><span class="line"><span class="number">4</span> g1 c0 g2</span><br><span class="line"><span class="number">5</span> g2 c0 g1</span><br><span class="line"><span class="number">6</span> g2 c0 g1</span><br></pre></td></tr></table></figure>
-<p>由穷举法可知，换门的成功率为2/3。</p>
-<p>所以，这就是这个问题的解决办法了。。。</p>
 
     
   </div>
