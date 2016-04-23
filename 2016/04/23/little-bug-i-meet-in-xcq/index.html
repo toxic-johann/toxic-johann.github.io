@@ -1,0 +1,267 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  
+  <title>由input标签引发的血案（一） | Toxic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+    <meta name="author" content="to-xic">
+  
+  
+    <meta name="description" content="最近这两周压力比较大，手上这个项目遇到的坑还是挺多的。现在第一版的代码差不多完成，今晚算是空闲。因此先记录一下一些这些天遇到的bug。
+
+input的multiple属性
+
+个人认为multiple是一个很完美的属性。在元素&amp;lt;input type=&amp;quot;file&amp;quot;&amp;gt;，配上multipe和accept属性。就这样一个限定类型的多文件上传接口就出来了。
+然而事情总是不是那么">
+  
+  <meta name="description" content="最近这两周压力比较大，手上这个项目遇到的坑还是挺多的。现在第一版的代码差不多完成，今晚算是空闲。因此先记录一下一些这些天遇到的bug。
+
+input的multiple属性
+
+个人认为multiple是一个很完美的属性。在元素&amp;lt;input type=&amp;quot;file&amp;quot;&amp;gt;，配上multipe和accept属性。就这样一个限定类型的多文件上传接口就出来了。
+然而事情总是不是那么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="由input标签引发的血案（一）">
+<meta property="og:url" content="http://yoursite.com/2016/04/23/little-bug-i-meet-in-xcq/index.html">
+<meta property="og:site_name" content="Toxic">
+<meta property="og:description" content="最近这两周压力比较大，手上这个项目遇到的坑还是挺多的。现在第一版的代码差不多完成，今晚算是空闲。因此先记录一下一些这些天遇到的bug。
+
+input的multiple属性
+
+个人认为multiple是一个很完美的属性。在元素&amp;lt;input type=&amp;quot;file&amp;quot;&amp;gt;，配上multipe和accept属性。就这样一个限定类型的多文件上传接口就出来了。
+然而事情总是不是那么">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/multiple.jpg">
+<meta property="og:image" content="http://7xo9s8.com1.z0.glb.clouddn.com/inputlongtime.jpg">
+<meta property="og:updated_time" content="2016-04-23T15:19:07.003Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="由input标签引发的血案（一）">
+<meta name="twitter:description" content="最近这两周压力比较大，手上这个项目遇到的坑还是挺多的。现在第一版的代码差不多完成，今晚算是空闲。因此先记录一下一些这些天遇到的bug。
+
+input的multiple属性
+
+个人认为multiple是一个很完美的属性。在元素&amp;lt;input type=&amp;quot;file&amp;quot;&amp;gt;，配上multipe和accept属性。就这样一个限定类型的多文件上传接口就出来了。
+然而事情总是不是那么">
+  
+    <link rel="alternate" href="/atom.xml" title="Toxic" type="application/atom+xml">
+  
+  
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  
+<script type="text/javascript">
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9d865e87f3199160311b03cd56126f47";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+
+</script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <header id="header">
+  <div class="title">
+    <h1><a href="/">Toxic</a></h1>
+    <p><a href="/">李猜猜，被折磨得死去活来的菜鸟</a></p>
+  </div>
+  <nav class="nav">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/about">About</a></li>
+      
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+    <div class="clearfix"></div>
+  </nav>
+  <div class="clearfix"></div>
+</header>
+    <div class="content"><article class="post">
+  <header>
+    
+      <div class="icon"></div>
+      <a href="/2016/04/23/little-bug-i-meet-in-xcq/">
+  <time datetime="2016-04-23T13:51:46.000Z">
+    2016-04-23
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title">由input标签引发的血案（一）</h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>最近这两周压力比较大，手上这个项目遇到的坑还是挺多的。现在第一版的代码差不多完成，今晚算是空闲。因此先记录一下一些这些天遇到的bug。</p>
+<ul>
+<li><strong>input的multiple属性</strong></li>
+</ul>
+<p>个人认为multiple是一个很完美的属性。在元素<code>&lt;input type=&quot;file&quot;&gt;</code>，配上multipe和accept属性。就这样一个限定类型的多文件上传接口就出来了。</p>
+<p>然而事情总是不是那么完美的。这次的主角是安卓。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/multiple.jpg" alt="惨无人道的全红"></p>
+<p>事实上下面还有段语句解释。</p>
+<blockquote>
+<p>Not supported on Android 4.x and below, presumably an OS limitation. Only seems to work in Android 5.x for the Chrome browser.</p>
+</blockquote>
+<p>就是说只有安卓5.0以上的版本才支持这个特性。我们知道安卓5.0出来已经有一段时间了。但是因为安卓特殊的厂商分发机制。到现在大部分机子还是处于4.x的程度。</p>
+<p>事实上这个特性在安卓上是曾经生效过的。但是因为某一个版本的问题，直接被废弃了。无论你如何选择都是只能提交一张。而web页面暂时没有办法对此作出反抗。除非你用hybrid之类的自由度比较大的框架。</p>
+<p>因此这里我们降级采用了微信JSSDK的上传接口。</p>
+<p>花开两朵，各表一枝。既然安卓和iOS分成了两个派别，那我们先谈一下iOS的处理。（真对不起，我手头没有winphone，而且两个系统已经搞死我了。windows phone用户不要怪我。）</p>
+<ul>
+<li><strong>change事件的延时问题</strong></li>
+</ul>
+<p>一般来说，我们会采用change事件来监听网页里的input值选择，在<code>type=&quot;file&quot;</code>的情境下我们也照样处理。这里的逻辑是这样的。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/inputlongtime.jpg" alt="input取文件模拟流程"></p>
+<p>手机取出一个文件还是挺快的。但是，如果你选了很多个文件。这就很难说了。在性能比较差的手机或者系统里。他会把所有照片的路径和相关资料都打包好，再提交给页面。这就是图中红框所指的时间差。这个时间差甚至会长达十秒以上。</p>
+<p>这个时候，如果手机性能不好的话。页面会表现为卡死。如果手机性能尚不至于十分差劲，页面会可以交互。</p>
+<p>而红框这个时候，如果我们用事件交代，就是click事件后、change事件前。</p>
+<p>这是我们遇到的第一个问题，我们“不知道”用户已经选择完毕了，就被推上了前台。</p>
+<p>那既然我们什么都不知道，那就提前做好准备吧。在用户click的时候就作出我们已经在处理的现象，安抚一下用户吧。</p>
+<p>因此我决定在click事件上就加上相关的页面交互表示。当我们web端被推向用户的时候，不至于手足无措。但是这就引来了下面这个问题。</p>
+<ul>
+<li><strong>cancel的坑</strong></li>
+</ul>
+<p>万一用户按了取消事件呢？</p>
+<p>这就是另一个坑了。一般在电脑上，有两种处理情况。</p>
+<ol>
+<li>当用户cancel后，触发change，上传的file为0.</li>
+<li>不触发change.</li>
+</ol>
+<p>现在假设你在电脑上。</p>
+<ol>
+<li>file为0，我们好理解。在change事件上面绑上了0的排除项就可以了。</li>
+<li>不通知的话，我们只需要把所有交互都放在change上面就好。那么你没选，就没触发change了。</li>
+</ol>
+<p>但是，现在我们在手机端，而且根据上文，我们为了客户体验。在click上作了处理。</p>
+<ol>
+<li>手机通知我file为0，谢天谢地，你还会通知我。那我把刚刚的提醒赶紧取消掉就好。</li>
+<li>手机不通知我，坑爹了……</li>
+</ol>
+<p>这就让我在click后处于一种十分尴尬的状态了。</p>
+<p>究竟用户是在选择呢？取消选择了呢？还是选择完了手机在处理用户盯着我干瞪眼呢？</p>
+<p>这个问题，我暂时想不到比较好的办法。我个人建把议决定权交还给用户。我们给可以让用户关掉的一个提示框。 待议。</p>
+<p>iOS上的上传基本就是用form-data和filereader进行处理就好了。这里问题不大。</p>
+<p>下面我们说android。</p>
+<ul>
+<li><strong>chooseImage的个数</strong></li>
+</ul>
+<p>微信JSsdk中，chooseImage的最多数目是九个。如果你设定大于9的限制。在android里会显示依旧只能选9个，但是在iPhone里，你的确可以选很多个，不过该接口会返回一个错误。</p>
+<p>不过令人庆幸的是，微信这个接口success、fail、cacel的接口一应俱全。让人十分满意。</p>
+<ul>
+<li><strong>localId的坑</strong></li>
+</ul>
+<p>localId是微信给的一个地址，应该是只是一个代理让你找寻本地文件。但是除此之外，就找不到其他资料了。</p>
+<p>这个localId只能用于img展示，将其绑定到<code>&lt;img&gt;</code>的src属性上，就可以显示该图片。</p>
+<p>但是这个localId无法用于filereader进行处理。</p>
+<p>在stackoverflow上面找到这个<a href="http://stackoverflow.com/questions/6150289/how-to-convert-image-into-base64-string-using-javascript" target="_blank" rel="external">处理方法</a>。用于将img转化为dataurl。</p>
+<p>一个是用xhr进行文件下载处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">toDataUrl</span>(<span class="params">url, callback</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">    xhr.responseType = <span class="string">'blob'</span>;</span><br><span class="line">    xhr.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="keyword">var</span> reader  = <span class="keyword">new</span> FileReader();</span><br><span class="line">      reader.onloadend = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">          callback(reader.result);</span><br><span class="line">      &#125;</span><br><span class="line">      reader.readAsDataURL(xhr.response);</span><br><span class="line">    &#125;;</span><br><span class="line">    xhr.open(<span class="string">'GET'</span>, url);</span><br><span class="line">    xhr.send();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是微信的localId不支持这种ajax请求。</p>
+<p>另一个是用canvas渲染后再进行提取。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">toDataUrl</span>(<span class="params">url, callback, outputFormat</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> img = <span class="keyword">new</span> Image();</span><br><span class="line">    img.crossOrigin = <span class="string">'Anonymous'</span>;</span><br><span class="line">    img.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> canvas = <span class="built_in">document</span>.createElement(<span class="string">'CANVAS'</span>);</span><br><span class="line">        <span class="keyword">var</span> ctx = canvas.getContext(<span class="string">'2d'</span>);</span><br><span class="line">        <span class="keyword">var</span> dataURL;</span><br><span class="line">        canvas.height = <span class="keyword">this</span>.height;</span><br><span class="line">        canvas.width = <span class="keyword">this</span>.width;</span><br><span class="line">        ctx.drawImage(<span class="keyword">this</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">        dataURL = canvas.toDataURL(outputFormat);</span><br><span class="line">        callback(dataURL);</span><br><span class="line">        canvas = <span class="literal">null</span>; </span><br><span class="line">    &#125;;</span><br><span class="line">    img.src = url;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里注意下，必须要设置跨域。不然你无法调用canvas的toDataURL方法。</p>
+<p>不过我试了下，生成的图片都是空图片，应该还是有些问题。</p>
+<p>鉴于时间愿意，我也放弃了，选择了一种我较为熟悉的做法。。</p>
+<p>前端把图片上传至微信服务器，获取微信服务器mediaId，再在我服务器利用该id进行拉取。这个以后我再谈谈具体做法。</p>
+<ul>
+<li><strong>娇贵的uploadImage</strong></li>
+</ul>
+<p>uploadImage不支持多张上传，而且必须要传完一张，再传下一张。如果你同时提请求，或者在他没有处理好的情况下，提出请求。他会不报错，不报warning直接忽略掉。</p>
+<p>因此，这个必须要设置递归上传了。因此，我写了个异步递归方法。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">recursion:<span class="function"><span class="keyword">function</span>(<span class="params">...args</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">let</span> me = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>((resolve,reject)=&gt;&#123;</span><br><span class="line">        <span class="keyword">let</span> arr = args[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">let</span> callback = args[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">let</span> other = args.slice(<span class="number">2</span>);</span><br><span class="line">        <span class="comment">// 判断处理队列是否还有需要处理的数据。</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">Array</span>.isArray(arr) &amp;&amp; arr.length &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">let</span> tmp = arr.shift();</span><br><span class="line">            <span class="keyword">let</span> runArgs = [tmp].concat(other);</span><br><span class="line">            <span class="keyword">let</span> newArgs = [arr,callback].concat(other)</span><br><span class="line">            <span class="comment">// 执行需要我执行的函数，无论是否成功，执行结束后调用下一个函数进行执行。</span></span><br><span class="line">            callback.apply(<span class="keyword">this</span>,runArgs).then(()=&gt;&#123;</span><br><span class="line">                me.recursion.apply(me,newArgs).then(()=&gt;&#123;</span><br><span class="line">                    resolve();</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;,(...args)=&gt;&#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">"recursion got reject"</span>,args);</span><br><span class="line">                me.recursion.apply(me,newArgs).then(()=&gt;&#123;</span><br><span class="line">                    resolve();</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;).catch((...args)=&gt;&#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">"recursion catach error"</span>,args);</span><br><span class="line">                me.recursion.apply(me,newArgs).then(()=&gt;&#123;</span><br><span class="line">                    resolve();</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            resolve()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用起来也十分简单。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">recursion(localIds,(each,self)=&gt;&#123;</span><br><span class="line">    <span class="keyword">return</span> self.uploadByWx(each,self)</span><br><span class="line">&#125;,self).then(success=&gt;&#123;</span><br><span class="line">    self.$emit(<span class="string">"finished"</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>传入你需要的参数和调用的函数。然后监听结果就好。</p>
+<p>那么这样子我们就基本完成了主需求了。下面谈一些其他方面的小问题。</p>
+<ul>
+<li><strong>翻滚的苹果</strong></li>
+</ul>
+<p>现在十分流行下拉翻页等需求。因此，对于scorll效果，我们用的越来越多。鉴于本次项目需要的滚动不算特别复杂。因此我就直接自己编写了一个vue的指令。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">;(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> vueScroll = &#123;&#125;;</span><br><span class="line">    vueScroll.install = <span class="function"><span class="keyword">function</span>(<span class="params">Vue</span>) </span>&#123;</span><br><span class="line">        Vue.directive(<span class="string">'scroll'</span>, &#123;</span><br><span class="line">            isFn : <span class="literal">true</span>,</span><br><span class="line">            acceptStatement : <span class="literal">true</span>,</span><br><span class="line">            bind : <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                 <span class="comment">//bind callback</span></span><br><span class="line">            &#125;,</span><br><span class="line">            update : <span class="function"><span class="keyword">function</span>(<span class="params">fn</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span>(<span class="keyword">typeof</span> fn !== <span class="string">'function'</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="built_in">console</span>.error(<span class="string">'The param of directive "v-scroll" must be a function!'</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">let</span> positon = $(<span class="built_in">window</span>).scrollTop();</span><br><span class="line">                <span class="keyword">let</span> direction = <span class="string">""</span>;</span><br><span class="line">                <span class="keyword">let</span> delta = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">                $(<span class="built_in">window</span>).scroll(<span class="function"><span class="keyword">function</span>(<span class="params">...args</span>)</span>&#123;</span><br><span class="line">                    <span class="keyword">let</span> now = $(<span class="built_in">window</span>).scrollTop();</span><br><span class="line">                    <span class="keyword">if</span>(now == ($(<span class="built_in">document</span>).height() - $(<span class="built_in">window</span>).height()))&#123;</span><br><span class="line">                        args.push(<span class="string">"bottom"</span>)</span><br><span class="line">                        args.push($(self.el));</span><br><span class="line">                        fn.apply(self,args);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span>(direction != <span class="string">"down"</span> &amp;&amp; now-positon &gt; delta)&#123;</span><br><span class="line">                        direction = <span class="string">"down"</span>;</span><br><span class="line">                        positon = now;</span><br><span class="line">                        args.push(<span class="string">"down"</span>)</span><br><span class="line">                        args.push($(self.el));</span><br><span class="line">                        fn.apply(self,args);</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(direction != <span class="string">"up"</span> &amp;&amp; positon-now &gt; delta)&#123;</span><br><span class="line">                        direction = <span class="string">"up"</span>;</span><br><span class="line">                        positon = now;</span><br><span class="line">                        args.push(<span class="string">"up"</span>)</span><br><span class="line">                        args.push($(self.el));</span><br><span class="line">                        fn.apply(self,args);</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(<span class="built_in">Math</span>.abs(now-positon)&gt;delta)&#123;</span><br><span class="line">                        positon = now;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;,</span><br><span class="line">            unbind : <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;,</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> exports == <span class="string">"object"</span>) &#123;</span><br><span class="line">        <span class="built_in">module</span>.exports = vueScroll;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> define == <span class="string">"function"</span> &amp;&amp; define.amd) &#123;</span><br><span class="line">        define([], <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; <span class="keyword">return</span> vueScroll &#125;)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">window</span>.Vue) &#123;</span><br><span class="line">        <span class="built_in">window</span>.vueScroll = vueScroll;</span><br><span class="line">        Vue.use(vueScroll);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>监听滚动到底部的方式还是比较简单，做一个位置的提醒就好了。</p>
+<p>至于判断滑动方向，我想不是方向改变了的话，你当然不希望收到这么多通知啦。因此我这里做了个标志的缓存。如果方向边，只在第一次移动的时候进行提醒。</p>
+<p>但是这里苹果做了个优化，直到最后滚动彻底停下来，苹果的浏览器才出发window的scroll函数。这里需要注意。因此你可以默认滚动到底部就等于往下翻等。这里自己需要稍加注意。</p>
+<ul>
+<li><strong>总结</strong></li>
+</ul>
+<p>移动端五花八门，还是很多细节会有不一样。特别是腾讯自己开发的X5浏览器，很多行为都十分怪异，惨不忍睹。这些找时间总结一下。</p>
+<p>另外这次还尝试了一下使用vuejs和众多微信的接口。这些找时间再谈。</p>
+
+    
+  </div>
+  <footer>
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">评论</h1>
+  <div class="ds-thread" data-title="由input标签引发的血案（一）">
+  </div>
+</section>
+</div>
+  </div>
+  <footer id="footer"><div class="copyright">
+  
+  &copy; 2016 <a href="/">to-xic</a>
+  
+</div>
+<div class="theme-copyright">
+  Theme by <a href="https://github.com/orderedlist" target="_blank">orderedlist</a>
+   | 
+  Redesign by <a href="http://heroicyang.com/" target="_blank">Heroic Yang</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script src="/js/scale.fix.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = { short_name: 'toxicjohann' };
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+  (function($){
+    $('.fancybox').fancybox();
+  })(jQuery);
+</script>
+
+</body>
+</html>

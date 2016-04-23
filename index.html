@@ -76,6 +76,214 @@ var _hmt = _hmt || [];
   <header>
     
       <div class="icon"></div>
+      <a href="/2016/04/23/little-bug-i-meet-in-xcq/">
+  <time datetime="2016-04-23T13:51:46.000Z">
+    2016-04-23
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/04/23/little-bug-i-meet-in-xcq/">由input标签引发的血案（一）</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>最近这两周压力比较大，手上这个项目遇到的坑还是挺多的。现在第一版的代码差不多完成，今晚算是空闲。因此先记录一下一些这些天遇到的bug。</p>
+<ul>
+<li><strong>input的multiple属性</strong></li>
+</ul>
+<p>个人认为multiple是一个很完美的属性。在元素<code>&lt;input type=&quot;file&quot;&gt;</code>，配上multipe和accept属性。就这样一个限定类型的多文件上传接口就出来了。</p>
+<p>然而事情总是不是那么完美的。这次的主角是安卓。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/multiple.jpg" alt="惨无人道的全红"></p>
+<p>事实上下面还有段语句解释。</p>
+<blockquote>
+<p>Not supported on Android 4.x and below, presumably an OS limitation. Only seems to work in Android 5.x for the Chrome browser.</p>
+</blockquote>
+<p>就是说只有安卓5.0以上的版本才支持这个特性。我们知道安卓5.0出来已经有一段时间了。但是因为安卓特殊的厂商分发机制。到现在大部分机子还是处于4.x的程度。</p>
+<p>事实上这个特性在安卓上是曾经生效过的。但是因为某一个版本的问题，直接被废弃了。无论你如何选择都是只能提交一张。而web页面暂时没有办法对此作出反抗。除非你用hybrid之类的自由度比较大的框架。</p>
+<p>因此这里我们降级采用了微信JSSDK的上传接口。</p>
+<p>花开两朵，各表一枝。既然安卓和iOS分成了两个派别，那我们先谈一下iOS的处理。（真对不起，我手头没有winphone，而且两个系统已经搞死我了。windows phone用户不要怪我。）</p>
+<ul>
+<li><strong>change事件的延时问题</strong></li>
+</ul>
+<p>一般来说，我们会采用change事件来监听网页里的input值选择，在<code>type=&quot;file&quot;</code>的情境下我们也照样处理。这里的逻辑是这样的。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/inputlongtime.jpg" alt="input取文件模拟流程"></p>
+<p>手机取出一个文件还是挺快的。但是，如果你选了很多个文件。这就很难说了。在性能比较差的手机或者系统里。他会把所有照片的路径和相关资料都打包好，再提交给页面。这就是图中红框所指的时间差。这个时间差甚至会长达十秒以上。</p>
+<p>这个时候，如果手机性能不好的话。页面会表现为卡死。如果手机性能尚不至于十分差劲，页面会可以交互。</p>
+<p>而红框这个时候，如果我们用事件交代，就是click事件后、change事件前。</p>
+<p>这是我们遇到的第一个问题，我们“不知道”用户已经选择完毕了，就被推上了前台。</p>
+<p>那既然我们什么都不知道，那就提前做好准备吧。在用户click的时候就作出我们已经在处理的现象，安抚一下用户吧。</p>
+<p>因此我决定在click事件上就加上相关的页面交互表示。当我们web端被推向用户的时候，不至于手足无措。但是这就引来了下面这个问题。</p>
+<ul>
+<li><strong>cancel的坑</strong></li>
+</ul>
+<p>万一用户按了取消事件呢？</p>
+<p>这就是另一个坑了。一般在电脑上，有两种处理情况。</p>
+<ol>
+<li>当用户cancel后，触发change，上传的file为0.</li>
+<li>不触发change.</li>
+</ol>
+<p>现在假设你在电脑上。</p>
+<ol>
+<li>file为0，我们好理解。在change事件上面绑上了0的排除项就可以了。</li>
+<li>不通知的话，我们只需要把所有交互都放在change上面就好。那么你没选，就没触发change了。</li>
+</ol>
+<p>但是，现在我们在手机端，而且根据上文，我们为了客户体验。在click上作了处理。</p>
+<ol>
+<li>手机通知我file为0，谢天谢地，你还会通知我。那我把刚刚的提醒赶紧取消掉就好。</li>
+<li>手机不通知我，坑爹了……</li>
+</ol>
+<p>这就让我在click后处于一种十分尴尬的状态了。</p>
+<p>究竟用户是在选择呢？取消选择了呢？还是选择完了手机在处理用户盯着我干瞪眼呢？</p>
+<p>这个问题，我暂时想不到比较好的办法。我个人建把议决定权交还给用户。我们给可以让用户关掉的一个提示框。 待议。</p>
+<p>iOS上的上传基本就是用form-data和filereader进行处理就好了。这里问题不大。</p>
+<p>下面我们说android。</p>
+<ul>
+<li><strong>chooseImage的个数</strong></li>
+</ul>
+<p>微信JSsdk中，chooseImage的最多数目是九个。如果你设定大于9的限制。在android里会显示依旧只能选9个，但是在iPhone里，你的确可以选很多个，不过该接口会返回一个错误。</p>
+<p>不过令人庆幸的是，微信这个接口success、fail、cacel的接口一应俱全。让人十分满意。</p>
+<ul>
+<li><strong>localId的坑</strong></li>
+</ul>
+<p>localId是微信给的一个地址，应该是只是一个代理让你找寻本地文件。但是除此之外，就找不到其他资料了。</p>
+<p>这个localId只能用于img展示，将其绑定到<code>&lt;img&gt;</code>的src属性上，就可以显示该图片。</p>
+<p>但是这个localId无法用于filereader进行处理。</p>
+<p>在stackoverflow上面找到这个<a href="http://stackoverflow.com/questions/6150289/how-to-convert-image-into-base64-string-using-javascript" target="_blank" rel="external">处理方法</a>。用于将img转化为dataurl。</p>
+<p>一个是用xhr进行文件下载处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">toDataUrl</span>(<span class="params">url, callback</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">    xhr.responseType = <span class="string">'blob'</span>;</span><br><span class="line">    xhr.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="keyword">var</span> reader  = <span class="keyword">new</span> FileReader();</span><br><span class="line">      reader.onloadend = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">          callback(reader.result);</span><br><span class="line">      &#125;</span><br><span class="line">      reader.readAsDataURL(xhr.response);</span><br><span class="line">    &#125;;</span><br><span class="line">    xhr.open(<span class="string">'GET'</span>, url);</span><br><span class="line">    xhr.send();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是微信的localId不支持这种ajax请求。</p>
+<p>另一个是用canvas渲染后再进行提取。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">toDataUrl</span>(<span class="params">url, callback, outputFormat</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> img = <span class="keyword">new</span> Image();</span><br><span class="line">    img.crossOrigin = <span class="string">'Anonymous'</span>;</span><br><span class="line">    img.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> canvas = <span class="built_in">document</span>.createElement(<span class="string">'CANVAS'</span>);</span><br><span class="line">        <span class="keyword">var</span> ctx = canvas.getContext(<span class="string">'2d'</span>);</span><br><span class="line">        <span class="keyword">var</span> dataURL;</span><br><span class="line">        canvas.height = <span class="keyword">this</span>.height;</span><br><span class="line">        canvas.width = <span class="keyword">this</span>.width;</span><br><span class="line">        ctx.drawImage(<span class="keyword">this</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">        dataURL = canvas.toDataURL(outputFormat);</span><br><span class="line">        callback(dataURL);</span><br><span class="line">        canvas = <span class="literal">null</span>; </span><br><span class="line">    &#125;;</span><br><span class="line">    img.src = url;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里注意下，必须要设置跨域。不然你无法调用canvas的toDataURL方法。</p>
+<p>不过我试了下，生成的图片都是空图片，应该还是有些问题。</p>
+<p>鉴于时间愿意，我也放弃了，选择了一种我较为熟悉的做法。。</p>
+<p>前端把图片上传至微信服务器，获取微信服务器mediaId，再在我服务器利用该id进行拉取。这个以后我再谈谈具体做法。</p>
+<ul>
+<li><strong>娇贵的uploadImage</strong></li>
+</ul>
+<p>uploadImage不支持多张上传，而且必须要传完一张，再传下一张。如果你同时提请求，或者在他没有处理好的情况下，提出请求。他会不报错，不报warning直接忽略掉。</p>
+<p>因此，这个必须要设置递归上传了。因此，我写了个异步递归方法。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">recursion:<span class="function"><span class="keyword">function</span>(<span class="params">...args</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">let</span> me = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>((resolve,reject)=&gt;&#123;</span><br><span class="line">        <span class="keyword">let</span> arr = args[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">let</span> callback = args[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">let</span> other = args.slice(<span class="number">2</span>);</span><br><span class="line">        <span class="comment">// 判断处理队列是否还有需要处理的数据。</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">Array</span>.isArray(arr) &amp;&amp; arr.length &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">let</span> tmp = arr.shift();</span><br><span class="line">            <span class="keyword">let</span> runArgs = [tmp].concat(other);</span><br><span class="line">            <span class="keyword">let</span> newArgs = [arr,callback].concat(other)</span><br><span class="line">            <span class="comment">// 执行需要我执行的函数，无论是否成功，执行结束后调用下一个函数进行执行。</span></span><br><span class="line">            callback.apply(<span class="keyword">this</span>,runArgs).then(()=&gt;&#123;</span><br><span class="line">                me.recursion.apply(me,newArgs).then(()=&gt;&#123;</span><br><span class="line">                    resolve();</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;,(...args)=&gt;&#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">"recursion got reject"</span>,args);</span><br><span class="line">                me.recursion.apply(me,newArgs).then(()=&gt;&#123;</span><br><span class="line">                    resolve();</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;).catch((...args)=&gt;&#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">"recursion catach error"</span>,args);</span><br><span class="line">                me.recursion.apply(me,newArgs).then(()=&gt;&#123;</span><br><span class="line">                    resolve();</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            resolve()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用起来也十分简单。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">recursion(localIds,(each,self)=&gt;&#123;</span><br><span class="line">    <span class="keyword">return</span> self.uploadByWx(each,self)</span><br><span class="line">&#125;,self).then(success=&gt;&#123;</span><br><span class="line">    self.$emit(<span class="string">"finished"</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>传入你需要的参数和调用的函数。然后监听结果就好。</p>
+<p>那么这样子我们就基本完成了主需求了。下面谈一些其他方面的小问题。</p>
+<ul>
+<li><strong>翻滚的苹果</strong></li>
+</ul>
+<p>现在十分流行下拉翻页等需求。因此，对于scorll效果，我们用的越来越多。鉴于本次项目需要的滚动不算特别复杂。因此我就直接自己编写了一个vue的指令。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">;(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> vueScroll = &#123;&#125;;</span><br><span class="line">    vueScroll.install = <span class="function"><span class="keyword">function</span>(<span class="params">Vue</span>) </span>&#123;</span><br><span class="line">        Vue.directive(<span class="string">'scroll'</span>, &#123;</span><br><span class="line">            isFn : <span class="literal">true</span>,</span><br><span class="line">            acceptStatement : <span class="literal">true</span>,</span><br><span class="line">            bind : <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                 <span class="comment">//bind callback</span></span><br><span class="line">            &#125;,</span><br><span class="line">            update : <span class="function"><span class="keyword">function</span>(<span class="params">fn</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span>(<span class="keyword">typeof</span> fn !== <span class="string">'function'</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="built_in">console</span>.error(<span class="string">'The param of directive "v-scroll" must be a function!'</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">let</span> positon = $(<span class="built_in">window</span>).scrollTop();</span><br><span class="line">                <span class="keyword">let</span> direction = <span class="string">""</span>;</span><br><span class="line">                <span class="keyword">let</span> delta = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">                $(<span class="built_in">window</span>).scroll(<span class="function"><span class="keyword">function</span>(<span class="params">...args</span>)</span>&#123;</span><br><span class="line">                    <span class="keyword">let</span> now = $(<span class="built_in">window</span>).scrollTop();</span><br><span class="line">                    <span class="keyword">if</span>(now == ($(<span class="built_in">document</span>).height() - $(<span class="built_in">window</span>).height()))&#123;</span><br><span class="line">                        args.push(<span class="string">"bottom"</span>)</span><br><span class="line">                        args.push($(self.el));</span><br><span class="line">                        fn.apply(self,args);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span>(direction != <span class="string">"down"</span> &amp;&amp; now-positon &gt; delta)&#123;</span><br><span class="line">                        direction = <span class="string">"down"</span>;</span><br><span class="line">                        positon = now;</span><br><span class="line">                        args.push(<span class="string">"down"</span>)</span><br><span class="line">                        args.push($(self.el));</span><br><span class="line">                        fn.apply(self,args);</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(direction != <span class="string">"up"</span> &amp;&amp; positon-now &gt; delta)&#123;</span><br><span class="line">                        direction = <span class="string">"up"</span>;</span><br><span class="line">                        positon = now;</span><br><span class="line">                        args.push(<span class="string">"up"</span>)</span><br><span class="line">                        args.push($(self.el));</span><br><span class="line">                        fn.apply(self,args);</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(<span class="built_in">Math</span>.abs(now-positon)&gt;delta)&#123;</span><br><span class="line">                        positon = now;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;,</span><br><span class="line">            unbind : <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;,</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> exports == <span class="string">"object"</span>) &#123;</span><br><span class="line">        <span class="built_in">module</span>.exports = vueScroll;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> define == <span class="string">"function"</span> &amp;&amp; define.amd) &#123;</span><br><span class="line">        define([], <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; <span class="keyword">return</span> vueScroll &#125;)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">window</span>.Vue) &#123;</span><br><span class="line">        <span class="built_in">window</span>.vueScroll = vueScroll;</span><br><span class="line">        Vue.use(vueScroll);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>监听滚动到底部的方式还是比较简单，做一个位置的提醒就好了。</p>
+<p>至于判断滑动方向，我想不是方向改变了的话，你当然不希望收到这么多通知啦。因此我这里做了个标志的缓存。如果方向边，只在第一次移动的时候进行提醒。</p>
+<p>但是这里苹果做了个优化，直到最后滚动彻底停下来，苹果的浏览器才出发window的scroll函数。这里需要注意。因此你可以默认滚动到底部就等于往下翻等。这里自己需要稍加注意。</p>
+<ul>
+<li><strong>总结</strong></li>
+</ul>
+<p>移动端五花八门，还是很多细节会有不一样。特别是腾讯自己开发的X5浏览器，很多行为都十分怪异，惨不忍睹。这些找时间总结一下。</p>
+<p>另外这次还尝试了一下使用vuejs和众多微信的接口。这些找时间再谈。</p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
+      <a href="/2016/04/10/use-webworker/">
+  <time datetime="2016-04-10T10:00:10.000Z">
+    2016-04-10
+  </time>
+</a>
+    
+    
+  
+    <h1 class="title"><a href="/2016/04/10/use-webworker/">尝试用webworker优化体验</a></h1>
+  
+
+  </header>
+  
+  <div class="entry">
+    
+      <p>之前编写的ascii化网站会存着太大运算量导致进程卡死页面假死的问题。其实这个问题在业界已经有很好的解决方法。调用<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Workers_API/Using_web_workers" target="_blank" rel="external">webworker</a>分派到其他进程进行运算即可。于是我就在这个项目上使用了一下web worker。</p>
+<ul>
+<li><strong>worker-loader</strong></li>
+</ul>
+<p>因为web worker的脚本是在页面生成后再进行拉取的。而我在页面中使用的是webpack页面打包机制。两者给我的感觉理念使用相悖的。</p>
+<p>其实如果没什么特别需求，可以直接在页面上使用正常的webworker方式进行处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> myWorker = <span class="keyword">new</span> Worker(<span class="string">"my_task.js"</span>);</span><br><span class="line"></span><br><span class="line">myWorker.onmessage = <span class="function"><span class="keyword">function</span> (<span class="params">oEvent</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"Called back by the worker!\n"</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>个人认为也是没什么问题。不过我比较懒，想在webpack打包的时候把所有问题解决掉。</p>
+<p>而且我并不想破坏我的一些插件的内部结构。所以我希望将插件打包到我的worker中，然后再进行处理。</p>
+<p>于是我尝试了使用<a href="https://github.com/webpack/worker-loader" target="_blank" rel="external">worker-loader</a>插件。</p>
+<p>配置的方法不算难。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    entry: &#123;</span><br><span class="line">        <span class="string">"/page/home/index/ascii"</span>: dir + <span class="string">'/page/home/index/ascii.js'</span>,</span><br><span class="line">        <span class="string">"/page/home/index/photoshop"</span>: dir + <span class="string">'/page/home/index/photoshop.js'</span>,</span><br><span class="line">        </span><br><span class="line">    &#125;,</span><br><span class="line">    output: &#123;</span><br><span class="line">        path: dir + <span class="string">"/../www/static/js/"</span>,</span><br><span class="line">        filename: <span class="string">"[name].js"</span>,</span><br><span class="line">        publicPath:<span class="string">"/static/js/"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="built_in">module</span>: &#123;</span><br><span class="line">        loaders: [</span><br><span class="line">            &#123;</span><br><span class="line">              test: <span class="regexp">/\.js$/</span>,</span><br><span class="line">              exclude: <span class="regexp">/(node_modules|bower_components)/</span>,</span><br><span class="line">              loader: <span class="string">'babel'</span>,</span><br><span class="line">              query: &#123;</span><br><span class="line">                    presets: [<span class="string">'es2015'</span>]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="comment">//在此处加上worker-loader即可</span></span><br><span class="line">            &#123; </span><br><span class="line">                test: <span class="regexp">/\.worker$/</span>,</span><br><span class="line">                loader: <span class="string">"worker-loader"</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    externals: &#123;</span><br><span class="line">        <span class="comment">// require("jquery") 是引用自外部模块的</span></span><br><span class="line">        <span class="comment">// 对应全局变量 jQuery</span></span><br><span class="line">        <span class="string">"jquery"</span>: <span class="string">"jQuery"</span>,</span><br><span class="line">        <span class="string">"wx"</span>:<span class="string">"wx"</span>,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用的时候，加上一个前缀。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> MyWorker = <span class="built_in">require</span>(<span class="string">"worker!./ascii-worker.js"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> myWorker = <span class="keyword">new</span> MyWorker();</span><br></pre></td></tr></table></figure>
+<p>就会进行自动编译。不过这个插件，貌似没有办法进行命名。而且会很自觉地放在公共路径下面。这样子会导致派生出很多个文件。需要进行清理。</p>
+<p>不过这个问题不大，并不会影响什么。但是以后看看有没有办法解决掉吧。这是后话。</p>
+<ul>
+<li><strong>web worker文件的配置</strong></li>
+</ul>
+<p>我的做法是将webworker作为一个中转站。根据传入的事件，进行相关事件的处理，返回需要的数据。</p>
+<p>我们先看一下我写的代码。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> Photoshop = <span class="built_in">require</span>(<span class="string">"../../../utils/photoshop.js"</span>);</span><br><span class="line"><span class="keyword">let</span> photoshop = <span class="keyword">new</span> Photoshop;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> AsciiPic = <span class="built_in">require</span>(<span class="string">"../../../utils/asciiPic.js"</span>);</span><br><span class="line"><span class="keyword">let</span> asciiPic = <span class="keyword">new</span> AsciiPic;</span><br></pre></td></tr></table></figure>
+<p>首先，在webworker引入我需要的处理用的插件。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">onmessage = <span class="function"><span class="keyword">function</span> (<span class="params">oEvent</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> ret = &#123;</span><br><span class="line">        behavior:<span class="string">"出错了~~~"</span>,</span><br><span class="line">        data:<span class="literal">null</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">if</span>(oEvent.data.behavior == <span class="string">"sketch"</span>)&#123;</span><br><span class="line">        <span class="keyword">let</span> pic = photoshop.sketch.apply(photoshop,oEvent.data.args);</span><br><span class="line">        ret = &#123;</span><br><span class="line">            behavior:oEvent.data.behavior,</span><br><span class="line">            data:[pic]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (oEvent.data.behavior == <span class="string">"adjustContrast"</span>)&#123;</span><br><span class="line">        <span class="keyword">let</span> pic = photoshop.adjustContrast.apply(photoshop,oEvent.data.args);</span><br><span class="line">        ret = &#123;</span><br><span class="line">            behavior:oEvent.data.behavior,</span><br><span class="line">            data:[pic]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(oEvent.data.behavior == <span class="string">"asciiFromImagedata"</span>)&#123;</span><br><span class="line">        <span class="keyword">let</span> pic = asciiPic.asciiFromImagedata.apply(asciiPic,oEvent.data.args);</span><br><span class="line">        ret = &#123;</span><br><span class="line">            behavior:oEvent.data.behavior,</span><br><span class="line">            data:[pic]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    postMessage(ret);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// webpack打包所需</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;&#125;;</span><br></pre></td></tr></table></figure>
+<p>然后就是一个事件处理。onmessage是浏览器给我们提供的一个事件机制，我们可以监听到主程序发出的指令。然后我在事件中定义一个标记，根据标记不同，进行不同的处理。</p>
+<p>我将参数作为数据传入，然后利用apply将参数传给执行者。</p>
+<p>最后利用postMessage返回。</p>
+<p>postMessage也是浏览器提供的与主进程之间处理的一个方法。</p>
+<p>就这样，我完成了一个中转站的设置。</p>
+<ul>
+<li><strong>主进程设置</strong></li>
+</ul>
+<p>那么在主进程中，我们也是同样的建立一个事件机制即可。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> MyWorker = <span class="built_in">require</span>(<span class="string">"worker!./ascii-worker.js"</span>);</span><br><span class="line"><span class="keyword">let</span> ToxicEvents = <span class="built_in">require</span>(<span class="string">"../../../utils/events.js"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> myWorker = <span class="keyword">new</span> MyWorker();</span><br><span class="line"><span class="keyword">let</span> events = <span class="keyword">new</span> ToxicEvents();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设定沟通之间的事件监听</span></span><br><span class="line">myWorker.onmessage = <span class="function"><span class="keyword">function</span> (<span class="params">oEvent</span>) </span>&#123;</span><br><span class="line">    events.trigger(oEvent.data.behavior,oEvent.data.data);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>为此，我写了一个小的事件模型进行处理。</p>
+<p>当我收到worker的信息后，将信息作为一个事件转发。并且带上参数。</p>
+<p>那么我在主进程中就可以进行监听和处理了。举个简单的栗子。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">tips(<span class="string">"正在素描化中"</span>)</span><br><span class="line"><span class="keyword">let</span> radius = <span class="built_in">parseInt</span>($(<span class="string">"#radius"</span>).val());</span><br><span class="line">myWorker.postMessage(&#123;</span><br><span class="line">    behavior:<span class="string">"sketch"</span>,</span><br><span class="line">    args:[imageData,radius]</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">events.on(<span class="string">"sketch"</span>,<span class="function"><span class="keyword">function</span>(<span class="params">evt,data</span>)</span>&#123;</span><br><span class="line">    imageData.data.set(data[<span class="number">0</span>]);</span><br><span class="line">    drawImageData(imageData);</span><br><span class="line">    events.off(evt.type,evt.id);</span><br><span class="line">    tips(<span class="string">"完成"</span>,<span class="literal">null</span>,<span class="string">"hide"</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>用myworker.postMessage通知web worker进行处理。然后他处理完后会触发我的事件机制，将结果传入。然后我作出页面响应。</p>
+<ul>
+<li><strong>同样一些需要注意的细节</strong></li>
+</ul>
+<p>在v8的strong mode里面arguments被禁用掉了。因此在webpack的打包中，你会发现使用arguments会拿不到结果。</p>
+<p>这个对于我们一些参数转移并不是很友好。辣么怎么办呢。使用<code>...args</code>吧。而且args会是一个真正的数组。也很方便。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.trigger = (...args)=&gt;&#123;</span><br><span class="line">    <span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">let</span> type = args[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">if</span>(!type)&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"事件触发需申明事件类型"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!_events[type])&#123;</span><br><span class="line">        <span class="built_in">console</span>.warn(<span class="string">"该类型没有绑定事件"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    _events[type].forEach(each=&gt;&#123;</span><br><span class="line">        <span class="keyword">let</span> tmpArgs = args;</span><br><span class="line">        tmpArgs.shift();</span><br><span class="line">        tmpArgs.unshift(&#123;</span><br><span class="line">            type:each.type,</span><br><span class="line">            id:each.id,</span><br><span class="line">        &#125;)</span><br><span class="line">        each.listener.apply(self,tmpArgs);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在我的事件机制里面trigger就是用了这个方法。这样子我可以成功将用户绑定的多个参数传回去给用户。</p>
+<p>最后由于大家在交大的节日已经很excited了。所以这次就来一个乔帮主吧。</p>
+<p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/3jordan.jpg" alt="我和华莱士当年也是谈笑风生的"></p>
+
+    
+  </div>
+  <footer class="end-sep">
+    
+      
+      
+    
+    <div class="clearfix"></div>
+  </footer>
+</article>
+
+
+  
+    <article class="post">
+  <header>
+    
+      <div class="icon"></div>
       <a href="/2016/04/09/talk-about-zcfy/">
   <time datetime="2016-04-09T05:43:45.000Z">
     2016-04-09
@@ -632,141 +840,6 @@ var _hmt = _hmt || [];
 <p><img src="http://7xo9s8.com1.z0.glb.clouddn.com/7.jpg" alt="字符化"></p>
 <p><a href="http://wechat.toxicjohann.com/home/index/ascii" target="_blank" rel="external">点击这里体验</a></p>
 <p><a href="https://github.com/toxic-johann/asciiPic" target="_blank" rel="external">点击这里</a>进入github观看源码</p>
-
-    
-  </div>
-  <footer class="end-sep">
-    
-      
-      
-    
-    <div class="clearfix"></div>
-  </footer>
-</article>
-
-
-  
-    <article class="post">
-  <header>
-    
-      <div class="icon"></div>
-      <a href="/2016/02/27/gulp-add-watch-bug/">
-  <time datetime="2016-02-27T12:59:20.000Z">
-    2016-02-27
-  </time>
-</a>
-    
-    
-  
-    <h1 class="title"><a href="/2016/02/27/gulp-add-watch-bug/">gulp-watch不能监听添加文件</a></h1>
-  
-
-  </header>
-  
-  <div class="entry">
-    
-      <p>这篇文章主要记录下今天做的时候遇到的几个问题。</p>
-<h1 id="gulp-watch">gulp-watch</h1><p>第一个问题当然是gulp-watch这个坑。其实这个坑有了很久，大家也很想gulp可以修复这个东西，但是gulp上面已经声明了，<a href="https://github.com/gulpjs/gulp/issues/651" target="_blank" rel="external">这个不是他们的bug</a>。虽然尽力在修，但是不知道什么时候弄得好。</p>
-<p>网上也有<a href="http://stackoverflow.com/questions/22391527/gulps-gulp-watch-not-triggered-for-new-or-deleted-files" target="_blank" rel="external">另外的解决办法</a>，或者直接调用gaze，但是我试了试貌似不行。</p>
-<p>所以最后我放弃了，毕竟gulp是拿来监听文件的，不是监听文件夹的。所以我把我的需求变了变，让服务器调用gulp。</p>
-<p>这个其实还是很简单的，调用一下exec就好了。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">exec(<span class="string">'cd ./myblog;gulp markdown;'</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> self.success()</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>这里再次更新一下<del>~</del>~</p>
-<p>—————————————-我是分割线———————————————</p>
-<p>后来当天回去想了想，觉得这种实现方式实在欠缺优雅。于是我就上网搜了一下node用于监听文件或文件夹变化的组件，最终决定了采用<a href="https://github.com/paulmillr/chokidar" target="_blank" rel="external">chokidar</a>这个模块。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> chokidar = <span class="built_in">require</span>(<span class="string">'chokidar'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// One-liner for current directory, ignores .dotfiles</span></span><br><span class="line">chokidar.watch(<span class="string">'.'</span>, &#123;ignored: <span class="regexp">/[\/\\]\./</span>&#125;).on(<span class="string">'all'</span>, (event, path) =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(event, path);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>就这么简单些，就可以监听目前的模块了。然后稍加改变就可以监听模块的改变。</p>
-<p>然后就遇到了一个问题。每次模块改变我都触发一个gulp的task，但是如果模块改变的太快，就很可能会在task尚未结束的时候再次启动。这种情况gulp是处理不了的。</p>
-<p>所以我就写了一个漏斗来进行逐一处理。</p>
-<p>这里顺便提一下，因为涉及到promise的使用，所以我是用了gulp的babel模式，在gulp3.9.0以上会支持。</p>
-<p>这里是引自该<a href="https://segmentfault.com/a/1190000004136053" target="_blank" rel="external">博文</a></p>
-<blockquote>
-<p>首先检测一下版本:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gulp -v</span><br></pre></td></tr></table></figure>
-<p>版本如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CLI version <span class="number">3.9</span>.<span class="number">0</span></span><br><span class="line">Local version <span class="number">3.9</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
-<p>如果版本过低可以这么升级</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install gulp -g &amp;&amp; npm install gulp --save-dev</span><br></pre></td></tr></table></figure>
-<p>安装babel-loader</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install babel-core babel-preset-es2015 --save-dev</span><br></pre></td></tr></table></figure>
-<p>重点主要是更换命名</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv gulpfile.js gulpfile.babel.js</span><br></pre></td></tr></table></figure>
-</blockquote>
-<p>OK，下面谈谈我的漏斗，漏斗的设计理念其实也还是比较简单的。</p>
-<ol>
-<li>漏斗本身是一个数组，每次只处理数组中的第一个数，处理完后取出第一个数，如果数组中仍有数，处理下一个数。</li>
-<li>漏斗处理的时候，会加锁，但是加锁的时候可以继续添加数，仅仅不能调用处理函数。</li>
-<li>应该可以有多个漏斗存在。</li>
-</ol>
-<p>所以我才用了工厂模型。</p>
-<p>首先定义一下内部属性</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Funnel</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="comment">// 定义内部属性</span></span><br><span class="line">	<span class="keyword">this</span>.pool = [];</span><br><span class="line">	<span class="keyword">this</span>.lock = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后定义一个_push函数，仅仅用于为pool添加内容，应该可以支持多个数组添加。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._push = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="keyword">let</span> args = [].slice.call(<span class="built_in">arguments</span>);</span><br><span class="line">	<span class="keyword">this</span>.pool = <span class="keyword">this</span>.pool.concat(args);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>其次定义一个_through函数，用于流通数据，执行函数。此处我才用了promise.</p>
-<p>如果被锁或者没数据，不进行处理。否则，加锁，然后进行处理，再解锁。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._through = <span class="function"><span class="keyword">function</span>(<span class="params">func</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">this</span>.lock || <span class="keyword">this</span>.pool.length == <span class="number">0</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">this</span>.lock = <span class="literal">true</span>;</span><br><span class="line">	func(<span class="keyword">this</span>.pool[<span class="number">0</span>]).then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">		self._unlock(func)</span><br><span class="line">	&#125;)	</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>最后定义一个_unlock函数，用于解锁、取出数据和检测是否需要继续流通。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>._unlock = <span class="function"><span class="keyword">function</span>(<span class="params">func</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.pool.splice(<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line">	<span class="keyword">this</span>.lock = <span class="literal">false</span>;</span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">this</span>.pool.length &gt; <span class="number">0</span>)&#123;</span><br><span class="line">		<span class="keyword">this</span>._through(func)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>所以最后得到文件Funnel.js</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="pi">'use strict'</span>;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Funnel</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="comment">// 定义内部属性</span></span><br><span class="line">	<span class="keyword">this</span>.pool = [];</span><br><span class="line">	<span class="keyword">this</span>.lock = <span class="literal">false</span>;</span><br><span class="line">	<span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 定义外部方法</span></span><br><span class="line">	<span class="keyword">this</span>._push = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">let</span> args = [].slice.call(<span class="built_in">arguments</span>);</span><br><span class="line">		<span class="keyword">this</span>.pool = <span class="keyword">this</span>.pool.concat(args);</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">this</span>._through = <span class="function"><span class="keyword">function</span>(<span class="params">func</span>)</span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(<span class="keyword">this</span>.lock || <span class="keyword">this</span>.pool.length == <span class="number">0</span>)&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">this</span>.lock = <span class="literal">true</span>;</span><br><span class="line">		func(<span class="keyword">this</span>.pool[<span class="number">0</span>]).then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">			self._unlock(func)</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">this</span>._unlock = <span class="function"><span class="keyword">function</span>(<span class="params">func</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.pool.splice(<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line">		<span class="keyword">this</span>.lock = <span class="literal">false</span>;</span><br><span class="line">		<span class="keyword">if</span>(<span class="keyword">this</span>.pool.length &gt; <span class="number">0</span>)&#123;</span><br><span class="line">			<span class="keyword">this</span>._through(func)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = Funnel;</span><br></pre></td></tr></table></figure>
-<p>然后运用也很简单</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> funnel = <span class="keyword">new</span> Funnel();</span><br><span class="line"></span><br><span class="line">gulp.task(<span class="string">'default'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    funnel._push(<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>);</span><br><span class="line">    funnel._through(<span class="function"><span class="keyword">function</span>(<span class="params">test</span>)</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve,reject</span>)</span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"test"</span>,test);</span><br><span class="line">        resolve();</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;)     </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>新建一个漏斗，推入数据，然后处理即可。</p>
-<h1 id="fs-mkdir">fs.mkdir</h1><p>第二个问题是利用生成路径问题。</p>
-<p>众所周知，fs.write之类的必须基于已有路径，但是有的时候不一定有，所以我们可以写个函数做个判断。</p>
-<p>以前我会这么写</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建所有目录</span></span><br><span class="line"><span class="keyword">var</span> mkdirs = <span class="built_in">module</span>.exports.mkdirs = <span class="function"><span class="keyword">function</span>(<span class="params">dirpath, mode, callback</span>) </span>&#123;</span><br><span class="line">    fs.exists(dirpath, <span class="function"><span class="keyword">function</span>(<span class="params">exists</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(exists) &#123;</span><br><span class="line">           callback(dirpath);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//尝试创建父目录，然后再创建当前目录</span></span><br><span class="line">            mkdirs(path.dirname(dirpath), mode, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                 fs.mkdir(dirpath, mode, callback);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>不过现在我想写成promise可以用，所以我这么写</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">mkdir:<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">let</span> self = <span class="keyword">this</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">dirpath, mode, callback</span>)</span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve,reject</span>)</span>&#123;</span><br><span class="line">				<span class="keyword">let</span> acallback = (<span class="function"><span class="keyword">function</span>(<span class="params">dirpath</span>)</span>&#123;</span><br><span class="line">					<span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">						<span class="keyword">if</span>(think.isFunction(callback))&#123;</span><br><span class="line">							callback(dirpath);</span><br><span class="line">						&#125;</span><br><span class="line">						resolve(dirpath);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;)(dirpath);</span><br><span class="line">				fs.exists(dirpath, <span class="function"><span class="keyword">function</span>(<span class="params">exists</span>) </span>&#123;</span><br><span class="line">			        <span class="keyword">if</span>(exists) &#123;</span><br><span class="line">			            acallback(dirpath);</span><br><span class="line">			        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			            self.mkdir(path.dirname(dirpath), mode, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">			                fs.mkdir(dirpath, mode, acallback);</span><br><span class="line">			            &#125;);</span><br><span class="line">			        &#125;</span><br><span class="line">			    &#125;);</span><br><span class="line">			&#125;);</span><br><span class="line">		&#125;.apply(global.utils,<span class="built_in">arguments</span>)</span><br><span class="line">	&#125;,</span><br></pre></td></tr></table></figure>
-<p>我在里面创造了promise并且在callback添加了resolve，从而达到目的。</p>
-<p>其实还是有其它方式的，例如你在那个传入的callbak里面绑定一个resolve之类的。不过我主要是懒得做，以后想这么用而已。</p>
-
-    
-  </div>
-  <footer class="end-sep">
-    
-      
-      
-    
-    <div class="clearfix"></div>
-  </footer>
-</article>
-
-
-  
-    <article class="post">
-  <header>
-    
-      <div class="icon"></div>
-      <a href="/2016/02/24/new-shape-and-webpack/">
-  <time datetime="2016-02-24T03:46:31.000Z">
-    2016-02-24
-  </time>
-</a>
-    
-    
-  
-    <h1 class="title"><a href="/2016/02/24/new-shape-and-webpack/">新形状组件和最近的一些笔记</a></h1>
-  
-
-  </header>
-  
-  <div class="entry">
-    
-      <p>如果你还记得我之前做的一个关于svg插件处理的话，你应该记得我是直接在代码里把颜色元素去掉，然后通过css打上各种颜色。</p>
-<p>然后随着业务的增加，我们需要支持多种颜色的svg。</p>
-<p>那么这种情况我们当然就不能简单的颜色处理了。于是很简单的我用attribute判断不同的颜色，然后为之打上不同的颜色。</p>
-<p>那么其实主要问题就是如何区分咯。我采用了一个很简单的方法。因为我在后台需要转换数据，为了偷懒，我直接在后台用cheerio处理文件。当然在前端也能达成这种效果。只需要用filereaded来读取上传的文件就可以了。</p>
-<p>处理的流程如下，</p>
-<ol>
-<li>遍历所有可以加上颜色的元素，提取颜色，打上颜色标签。</li>
-<li>将提取的颜色除重</li>
-<li>根据颜色标签替换为自己需要的标签，根据这些标签进行颜色处理。</li>
-</ol>
-<p>所以难度不大。不过在novajs上面template-repeat绑定元素监听不怎么可行，所以要自己加个代理监听。总体来说还是达成了效果。</p>
-<p>另外最近在自己的一个项目里尝试使用了webpack，发现babel-loader没有生效，查明后发现是babel6采用了插件处理。配置上必须改成如下，添加preset</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">module: &#123;</span><br><span class="line">        loaders: [</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="built_in">test</span>: /\.js$/,</span><br><span class="line">              exclude: /(node_modules|bower_components)/,</span><br><span class="line">              loader: <span class="string">'babel'</span>,</span><br><span class="line">              query: &#123;</span><br><span class="line">                    presets: [<span class="string">'es2015'</span>]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br></pre></td></tr></table></figure>
 
     
   </div>
